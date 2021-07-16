@@ -1,0 +1,9 @@
+# exclude everything in out except directory App_Flash.ini
+out/*
+!/out/App_Flash.ini
+*.map
+*.bak
+*.furicf1
+*.uvopt
+*.lst
+*.dep
