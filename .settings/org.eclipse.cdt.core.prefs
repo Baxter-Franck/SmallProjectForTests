@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Debug.105140923/append=true
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Debug.105140923/appendContributed=true
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/DRIVERLIB/delimiter=;
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/DRIVERLIB/operation=append
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/DRIVERLIB/value=${TivaWare_driverlib}
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/INC/delimiter=;
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/INC/operation=append
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/INC/value=Tiva ${TivaWare_inc}
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/append=true
+environment/project/com.ti.ccstudio.buildDefinitions.TMS470.Release.1491563454/appendContributed=true
