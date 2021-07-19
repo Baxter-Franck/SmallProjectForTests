@@ -19,5 +19,36 @@ int main(void)
 	//Ddi_watchdog_init(); // Dis/enable led Watchdog near JTAG connector if set break the µC
 	Ddi_ioexp_Init();
 	
-	chenillard(1);
+	//chenillard(1);
+	
+	while(1)
+	{
+		switch ((uint8_t)checkButtonPress())
+		{
+			case PLUS_PRESSED:
+				//Plus is pressed
+			    setGreenLed(1);
+				break;
+			
+			case CAL_PRESSED:
+				//CAL is pressed
+				setGreenLed(0);
+				setRedLed(0);
+			    break;
+
+			
+			case MINUS_PRESSED:
+				//MINUS is pressed
+			    setRedLed(1);
+				break;
+			
+			case NO_BUTTON:
+				//No button pressed
+				break;
+			
+			default :
+				break;
+		}
+		sleep_ms(500);
+	}
 }

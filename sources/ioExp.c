@@ -51,43 +51,41 @@ uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t r
 	uint16_t timeOutI2C = 0;
 	
 	I2CMasterSlaveAddrSet(I2C1_BASE, slave_addr, false);
-	I2CMasterDataPut(I2C1_BASE, reg);
-	I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_START);
-	timeOutI2C = 0;
-	while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-	if(timeOutI2C>=2000)return FALSE;
-	
-	timeOutI2C = 0;
-	while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-	if(timeOutI2C>=2000)return FALSE;
-	//
-	// Check for errors.
-	//
-	if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
-	{
-		//ERREUR I2C
-		erreurTransmission = TRUE;
-	}	
-	
-	I2CMasterDataPut(I2C1_BASE,(uint8_t)valToSend);
-	I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
-	timeOutI2C = 0;
-	while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-	if(timeOutI2C>=2000)return FALSE;
-	
-	timeOutI2C = 0;
-	while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-	if(timeOutI2C>=2000)return FALSE;
-	
-	
-	//
-	// Check for errors.
-	//
-	if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
-	{
-		//ERREUR I2C
-		erreurTransmission = TRUE;
-	}
+    I2CMasterDataPut(I2C1_BASE, reg);
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_START);
+    timeOutI2C = 0;
+    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    timeOutI2C = 0;
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+    //
+    // Check for errors.
+    //
+    if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
+    {
+        //ERREUR I2C
+        erreurTransmission = TRUE;
+    }
+
+    I2CMasterDataPut(I2C1_BASE,(uint8_t)valToSend);
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
+    timeOutI2C = 0;
+    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    timeOutI2C = 0;
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+    //
+    // Check for errors.
+    //
+    if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
+    {
+        //ERREUR I2C
+        erreurTransmission = TRUE;
+    }
 
 //NotUsed	
 	{
@@ -107,8 +105,88 @@ uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t r
 }
 	
 	
-	timeOutI2C = 0;
-	while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-	if(timeOutI2C>=2000)return FALSE;
+//	timeOutI2C = 0;
+//	while(I2CMasterBusy(I2C1_BASE) || timeOutI2C <2000)timeOutI2C++;
+//	if(timeOutI2C>=2000)return FALSE;
 	return success;
 }
+
+uint8_t Ddi_i2c_ReadI2C_IOEXP(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
+{
+    uint16_t timeOutI2C = 0;
+    uint8_t erreurTransmission = FALSE;
+    //clear I2C FIFOs
+    HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;
+
+    I2CMasterSlaveAddrSet(I2C1_BASE, slave_addr, false);
+
+    I2CMasterDataPut(I2C1_BASE, reg);
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_START);
+
+    timeOutI2C = 0;
+    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    timeOutI2C = 0;
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    //
+    // Check for errors.
+    //
+    if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
+    {
+        //ERREUR I2C
+        erreurTransmission = TRUE;
+    }
+
+    I2CMasterSlaveAddrSet(I2C1_BASE, slave_addr, true);
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_START);
+    timeOutI2C = 0;
+    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    timeOutI2C = 0;
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
+    {
+        //ERREUR I2C
+        erreurTransmission = TRUE;
+    }
+
+    *PData = I2CMasterDataGet(I2C1_BASE);
+    timeOutI2C = 0;
+    /*while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;*/
+
+    timeOutI2C = 0;
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    if(timeOutI2C>=2000)return FALSE;
+
+    if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
+    {
+        //ERREUR I2C
+        erreurTransmission = TRUE;
+    }
+
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
+
+    /*if(erreurTransmission == TRUE)
+    {
+        //ERROR_IOEXP_I2C_TRANSMISSION
+            if ( ERROR_IOEXP_I2C_TRANSMISSION_NB_ERR_OCC >= NB_ERR_OCC ) {
+                check_And_Add_In_Error_List(ID_ICB, ERROR_IOEXP_I2C_TRANSMISSION, PRIORITY_HIGH);
+            } else {
+                ERROR_IOEXP_I2C_TRANSMISSION_NB_ERR_OCC++;
+            }
+    }
+    else
+    {
+         check_If_Error_Was_Active_And_Unset(ID_ICB,ERROR_IOEXP_I2C_TRANSMISSION);
+            ERROR_IOEXP_I2C_TRANSMISSION_NB_ERR_OCC = 0;
+    }*/
+    return TRUE;
+}
+

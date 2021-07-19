@@ -4,6 +4,39 @@
 extern int cpt,taille;
 extern uint8_t value;
 
+uint32_t rxByte;
+
+BUTTON_TYPE checkButtonPress(void)
+{
+    BUTTON_TYPE ret = NO_BUTTON;
+    if(Ddi_i2c_ReadI2C_IOEXP(&rxByte, IOEXP_ADDR, PORT0_IN))
+    {
+        ret = (BUTTON_TYPE)((~rxByte & 0x70) & 0xFF);
+    }
+    return ret;
+}
+
+void setGreenLed(bool v){
+	
+	value = (v)?0xBF:0xFF;
+	Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
+}
+
+void setRedLed(bool v){
+    value = (v)?0xDF:0xFF;
+        Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
+}
+
+void setYellowLed(bool v){
+    value = (v)?0xEF:0xFF;
+        Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
+}
+
+void setLed(uint8_t v){
+    Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, v, PORT1_OUT);
+}
+
+
 void chenillard(int type)
 {
 	switch (type)
@@ -38,7 +71,7 @@ void chenillard(int type)
 			value = 0xEF;
 			while(1)
 			{
-				sleep_ms(120);
+				sleep_ms(500);
 				if(cpt==0)
 				{
 					value ^= (5<<4);
