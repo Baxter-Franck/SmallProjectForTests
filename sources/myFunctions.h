@@ -3,6 +3,8 @@
 
 #include "ioExp.h"
 #include "watchdog_ext.h"
+#include "interrupt.h"
+#include "hw_ints.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,
@@ -13,11 +15,16 @@ typedef enum{
 
 void sleep_ms(uint32_t time);
 void sleep_s(uint32_t time);
-void chenillard(int);
+void exampleChenillard(int);
+void exampleButtonPress(void);
+void exempleButtonPressInt(void);
+
 void setGreenLed(bool v);
 void setYellowLed(bool v);
 void setRedLed(bool v);
 void setLed(uint8_t v);
-BUTTON_TYPE checkButtonPress(void); //P04
+BUTTON_TYPE checkButtonPress(void);
+uint8_t checkButtonPressInt(void);
+void configInterrupt(void);
 
 #endif // __MY_FUNCTIONS_H__

@@ -1,10 +1,23 @@
 #include "myFunctions.h"
 
+void GPIOL_Handler(void);
 
 extern int cpt,taille;
 extern uint8_t value;
+uint8_t valueLed;
 
 uint32_t rxByte;
+
+uint8_t checkButtonPressInt(void)
+{
+    uint8_t ret = 0xFF;
+	
+    if(Ddi_i2c_ReadI2C_IOEXP(&rxByte, IOEXP_ADDR, PORT0_IN))
+    {
+        ret = (~rxByte & 0x70);
+    }
+    return ret;
+}
 
 BUTTON_TYPE checkButtonPress(void)
 {
@@ -16,6 +29,43 @@ BUTTON_TYPE checkButtonPress(void)
     return ret;
 }
 
+void configInterrupt(void)
+{
+    //Configure Pin PL2 for input
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);						
+    GPIOPinTypeGPIOInput(GPIO_PORTL_BASE, GPIO_PIN_2);
+	//Optionnel ==
+	//GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_DIR_MODE_IN);
+	//GPIOPadConfigSet(GPIO_PORTL_BASE,GPIO_PIN_2,GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
+	//GPIOIntDisable(GPIO_PORTL_BASE, GPIO_PIN_2);
+	//GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
+	//==
+
+	//Configure Pin PL2 for IOExpender interruption.
+	
+	GPIOIntRegister(GPIO_PORTL_BASE, GPIOL_Handler);					// Fonctionne avec une fonction quelquonque qui n'est pas défini dans le .s ! ?
+	
+	GPIOIntTypeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_FALLING_EDGE);
+	GPIOIntEnable(GPIO_PORTL_BASE, GPIO_PIN_2);
+	//IntPrioritySet ( INT_GPIOL, 0xe0); 								// Not Needed
+	IntEnable(INT_GPIOL);
+	//IntMasterEnable();                                                // Not needed
+}
+
+void GPIOL_Handler()
+{
+	GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
+	
+	valueLed = checkButtonPressInt();   //lecture ne marche pas
+	
+	//setLed(valueLed);
+	//setRedLed(1);							//Ecriture fonctionne.
+	//setGreenLed(1);
+	
+	
+	//SysCtlIntClear(INT_GPIOL);
+}
+
 void setGreenLed(bool v){
 	
 	value = (v)?0xBF:0xFF;
@@ -24,20 +74,75 @@ void setGreenLed(bool v){
 
 void setRedLed(bool v){
     value = (v)?0xDF:0xFF;
-        Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
+    Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
 }
 
 void setYellowLed(bool v){
     value = (v)?0xEF:0xFF;
-        Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
+    Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, value, PORT1_OUT);
 }
 
 void setLed(uint8_t v){
     Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, v, PORT1_OUT);
 }
 
+void exempleButtonPressInt(void)
+{
+    static uint8_t currentLed = 0xFF; //green on
+	
+    //currentLed = valueLed;
+	currentLed ^= (0x40 | valueLed);
 
-void chenillard(int type)
+	valueLed = 0x00;
+
+    setLed(currentLed);
+    sleep_ms(250);
+
+    currentLed ^= 0x40;
+    setLed(currentLed);
+    sleep_ms(250);
+
+
+}
+
+void exampleButtonPress()
+{
+	uint8_t v = (uint8_t)checkButtonPress();
+    switch (v)
+	{
+		case PLUS_PRESSED:
+			//Plus is pressed
+			setGreenLed(1);
+			break;
+
+		case CAL_PRESSED:
+			//CAL is pressed
+			setGreenLed(0);
+			setRedLed(0);
+			setYellowLed(0);
+			break;
+
+		case PLUS_PRESSED|MINUS_PRESSED:
+			//Plus is pressed
+			setYellowLed(1);
+			break;
+
+
+		case MINUS_PRESSED:
+			//MINUS is pressed
+			setRedLed(1);
+			break;
+
+		case NO_BUTTON:
+			//No button pressed
+			break;
+
+		default :
+			break;
+	}
+}
+
+void exampleChenillard(int type)
 {
 	switch (type)
 	{

@@ -200,28 +200,27 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 
 
 ; Reset Handler
-;Reset_Handler   PROC
-                ;EXPORT  Reset_Handler             [WEAK]	
-				;IMPORT  __main
-				;LDR		R0, =__main
-				;BX		R0 
-				;ENDP
+Reset_Handler   PROC
+                EXPORT  Reset_Handler             [WEAK]	
+				IMPORT  __main
+				B		__main
+				ENDP
 
 
 ; Reset Handler 2
-				EXPORT Reset_Handler
-Reset_Handler   PROC
-				LDR     R0, =__Vectors
-				LDR     R1, =0xE000ED08  ; Address of VTOR
-				STR     R0, [R1]         ; Set vector base address				
-				;
-				; Call the C library enty point that handles startup.  This will copy
-				; the .data section initializers from flash to SRAM and zero fill the
-				; .bss section.
-				;		
-				IMPORT  __main
-				B       __main
-				ENDP
+				;EXPORT Reset_Handler
+;Reset_Handler   PROC
+				;LDR     R0, =__Vectors
+				;LDR     R1, =0xE000ED08  ; Address of VTOR
+				;STR     R0, [R1]         ; Set vector base address				
+				;;
+				;; Call the C library enty point that handles startup.  This will copy
+				;; the .data section initializers from flash to SRAM and zero fill the
+				;; .bss section.
+				;;		
+				;IMPORT  __main
+				;B       __main
+				;ENDP
 
 
 ; Dummy Exception Handlers (infinite loops which can be modified)

@@ -23,27 +23,6 @@ void Ddi_ioexp_Init(void)
 	
 }
 
-void Ddi_ioexpS_Init(IOExpender_t io)
-{	
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);	// Enable PORTG
-	GPIOPinConfigure(GPIO_PG0_I2C1SCL); 			// Configure Alternate function for pin PG0
-	GPIOPinConfigure(GPIO_PG1_I2C1SDA); 			// Configure Alternate function for pin PG1
-	GPIOPinTypeI2CSCL(GPIO_PORTG_BASE, GPIO_PIN_0);	// Affect Pin PG0 at I2C SCL
-	GPIOPinTypeI2C(GPIO_PORTG_BASE, GPIO_PIN_1);	// Affect Pin PG1 at I2C SDA
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C1);  	// Enable I2C1
-	
-	I2CMasterInitExpClk(I2C1_BASE, HR_Sys_Clock_Freq, false);
-	
-	//clear I2C FIFOs
-    HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;
-	Ddi_i2c_SendI2C_IOEXP(io.id, 0xFF, CONF_PORT0);
-	SysCtlDelay(100);
-	Ddi_i2c_SendI2C_IOEXP(io.id, 0x00, CONF_PORT1);
-	SysCtlDelay(100);
-	Ddi_i2c_SendI2C_IOEXP(io.id, 0xFF, PORT1_OUT);
-	SysCtlDelay(100);	
-}
-
 uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg)
 {
 	uint8_t success = TRUE;

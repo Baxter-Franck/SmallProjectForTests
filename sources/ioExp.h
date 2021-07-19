@@ -29,7 +29,6 @@ typedef struct {
 } IOExpender_t;
 
 void Ddi_ioexp_Init(void);
-void Ddi_ioexpS_Init(IOExpender_t io);
 uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg);
 uint8_t Ddi_i2c_ReadI2C_IOEXP(uint32_t * PData, uint32_t slave_addr, uint8_t reg);
 
