@@ -27,6 +27,6 @@ int main(void)
 	    //exampleChenillard(1);
 	    //exampleButtonPress();
 	    //exempleButtonPressInt();
-	    exempleIO2Chenillard(1,10);
+	    exempleIO2Chenillard(1,20);
 	}
 }

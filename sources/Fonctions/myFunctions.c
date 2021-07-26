@@ -21,7 +21,7 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
 
             if(i==0)
                 tca9535.Output.ports.P0.bit.B0 = 0;
-            if(i==1)
+            else if(i==1)
                 tca9535.Output.ports.P0.bit.B1 = 0;
             else
                 tca9535.Output.ports.P0.all ^= 1<<i;
@@ -31,13 +31,13 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
         }
 
         //descente
-        for(i=7;i>=0&&i<=7;i--)
+        for(i=7;i<=7;i--)
         {
             tca9535.Output.all = 0x03; //all led off
 
             if(i==0)
                 tca9535.Output.ports.P0.bit.B0 = 0;
-            if(i==1)
+            else if(i==1)
                 tca9535.Output.ports.P0.bit.B1 = 0;
             else
                 tca9535.Output.ports.P0.all ^= 1<<i;
