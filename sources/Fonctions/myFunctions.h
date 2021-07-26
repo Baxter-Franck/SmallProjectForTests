@@ -2,6 +2,7 @@
 #define __MY_FUNCTIONS_H__
 
 #include "ioExp.h"
+#include "ioExp2.h"
 #include "watchdog_ext.h"
 #include "interrupt.h"
 #include "hw_ints.h"
@@ -18,6 +19,7 @@ void sleep_s(uint32_t time);
 void exampleChenillard(int);
 void exampleButtonPress(void);
 void exempleButtonPressInt(void);
+void exempleIO2Chenillard(uint8_t type, uint32_t delay);
 
 void setGreenLed(bool v);
 void setYellowLed(bool v);

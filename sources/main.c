@@ -5,6 +5,7 @@
 #include "sysctl.h"
 #include "hw_memmap.h"
 #include "ioExp.h"
+#include "ioExp2.h"
 #include "watchdog_ext.h"
 #include "myFunctions.h"
 
@@ -17,13 +18,15 @@ int main(void)
 {
 	HR_Sys_Clock_Freq = SysCtlClockFreqSet( SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_XTAL_25MHZ | SYSCTL_CFG_VCO_480, 80000000 );
 	//Ddi_watchdog_init(); // Dis/enable led Watchdog near JTAG connector if set break the µC
-	Ddi_ioexp_Init();
-	configInterrupt();
+	init_i2c();
+	configIO1();
+	configIO2();
 	
 	while(1)
 	{
 	    //exampleChenillard(1);
 	    //exampleButtonPress();
-	    exempleButtonPressInt();
+	    //exempleButtonPressInt();
+	    exempleIO2Chenillard(1,10);
 	}
 }

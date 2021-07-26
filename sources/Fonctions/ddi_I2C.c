@@ -1,6 +1,6 @@
-#include "ioExp.h"
+#include "ddi_I2C.h"
 
-void Ddi_ioexp_Init(void)
+void init_i2c(void)
 {	
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);	// Enable PORTG
 	GPIOPinConfigure(GPIO_PG0_I2C1SCL); 			// Configure Alternate function for pin PG0
@@ -13,17 +13,10 @@ void Ddi_ioexp_Init(void)
 	I2CMasterInitExpClk(I2C1_BASE, HR_Sys_Clock_Freq, false);
 	
 	//clear I2C FIFOs
-    HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;
-	Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, 0xFF, CONF_PORT0);
-	SysCtlDelay(100);
-	Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, 0x00, CONF_PORT1);
-	SysCtlDelay(100);
-	Ddi_i2c_SendI2C_IOEXP(IOEXP_ADDR, 0xFF, PORT1_OUT);
-	SysCtlDelay(100);
-	
+    HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;	
 }
 
-uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg)
+uint8_t i2c_Write(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg)
 {
 	uint8_t success = TRUE;
 	uint8_t erreurTransmission = FALSE;
@@ -90,7 +83,7 @@ uint8_t Ddi_i2c_SendI2C_IOEXP(uint8_t slave_addr, uint16_t  valToSend, uint8_t r
 	return success;
 }
 
-uint8_t Ddi_i2c_ReadI2C_IOEXP(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
+uint8_t i2c_Read(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
 {
     uint16_t timeOutI2C = 0;
     uint8_t erreurTransmission = FALSE;

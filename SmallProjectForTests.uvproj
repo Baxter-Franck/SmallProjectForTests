@@ -362,7 +362,7 @@
               <MiscControls></MiscControls>
               <Define>PART_TM4C1294KCPDT</Define>
               <Undefine></Undefine>
-              <IncludePath>C:\ti\TivaWare_C_Series-2.2.0.295\driverlib;C:\ti\TivaWare_C_Series-2.2.0.295\inc;C:\ti\TivaWare_C_Series-2.2.0.295;.\sources</IncludePath>
+              <IncludePath>C:\ti\TivaWare_C_Series-2.2.0.295\driverlib;C:\ti\TivaWare_C_Series-2.2.0.295\inc;C:\ti\TivaWare_C_Series-2.2.0.295;.\sources;.\sources\fonctions</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -415,20 +415,35 @@
               <FileType>2</FileType>
               <FilePath>.\sources\startup_TM4C129.s</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Fonctions</GroupName>
+          <Files>
+            <File>
+              <FileName>ddi_I2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\fonctions\ddi_I2C.c</FilePath>
+            </File>
             <File>
               <FileName>ioExp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\ioExp.c</FilePath>
+              <FilePath>.\sources\fonctions\ioExp.c</FilePath>
             </File>
             <File>
-              <FileName>watchdog_ext.c</FileName>
+              <FileName>ioExp2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\watchdog_ext.c</FilePath>
+              <FilePath>.\sources\fonctions\ioExp2.c</FilePath>
             </File>
             <File>
               <FileName>myFunctions.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\myFunctions.c</FilePath>
+              <FilePath>.\sources\fonctions\myFunctions.c</FilePath>
+            </File>
+            <File>
+              <FileName>watchdog_ext.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\fonctions\watchdog_ext.c</FilePath>
             </File>
           </Files>
         </Group>
