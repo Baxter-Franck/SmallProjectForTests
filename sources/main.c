@@ -21,14 +21,6 @@ uint16_t value16;
 uint32_t reply=0;
 bool b;
 
-
-// I2C_MASTER_ERR_NONE     0
-// I2C_MASTER_ERR_ADDR_ACK 0x00000004
-// I2C_MASTER_ERR_DATA_ACK 0x00000008
-// I2C_MASTER_ERR_ARB_LOST 0x00000010
-// I2C_MASTER_ERR_CLK_TOUT 0x00000080
-
-
 int main(void)
 {
     HR_Sys_Clock_Freq = SysCtlClockFreqSet( SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_XTAL_25MHZ | SYSCTL_CFG_VCO_480, 80000000 );
@@ -40,7 +32,9 @@ int main(void)
     value=0;
     value16=0;
 
-	//exempleEEPROMnotinWhileLOOP();
+	exempleEEPROMnotinWhileLOOP();
+
+	//TODO: TESTER le driver i2c franck fait avec TI https://forum.digikey.com/t/i2c-communication-with-the-ti-tiva-tm4c123gxl/13451
 
     while(1)
     {

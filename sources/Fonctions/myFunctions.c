@@ -11,12 +11,12 @@ uint8_t array[256];
 
 void exempleEEPROMnotinWhileLOOP(void)
 {
-    memset(array, 0, sizeof(array)); // init array at 0
+    memset(array, 42, sizeof(array)); // init array at 0
 
     // ecriture en eeprom
     for(i=0;i<=0xFF;i++)
     {
-        myEepromWrite(i,10);
+        array[i] = myEepromWrite(i,69);
         //sleep_ms(4);
     }
 
@@ -26,7 +26,7 @@ void exempleEEPROMnotinWhileLOOP(void)
     for(i=0;i<=0xFF;i++)
     {
         array[i] = myEepromRead(i);
-        sleep_ms(4);
+        //sleep_ms(10);
     }
 	i=0;
 }
@@ -273,7 +273,7 @@ void exampleChenillard(int type)
 
 }
 
-void initUART0()
+void initUART0(void)
 {
 
     // Enable GPIO port A which is used for UART0 pins.

@@ -15,7 +15,7 @@
 #define ADDR_EEPROM_BLOCK7 0x57
 
 void configEEPREOM(void);
-void myEepromWrite(uint8_t address, uint8_t data);
+uint8_t myEepromWrite(uint8_t address, uint8_t data);
 uint8_t myEepromRead(uint8_t address);
 
 #endif // __MYEEPROM_H__

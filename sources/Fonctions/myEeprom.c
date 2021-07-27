@@ -6,9 +6,9 @@ void configEEPREOM(void)
 
 }
 
-void myEepromWrite(uint8_t address, uint8_t data)
+uint8_t myEepromWrite(uint8_t address, uint8_t data)
 {
-    i2c_Write(ADDR_EEPROM_BLOCK0, data, address);
+    return i2c_Write(ADDR_EEPROM_BLOCK0, data, address);
 }
 
 uint8_t myEepromRead(uint8_t address)

@@ -33,6 +33,6 @@ void setLed(uint8_t v);
 BUTTON_TYPE checkButtonPress(void);
 uint8_t checkButtonPressInt(void);
 void configInterrupt(void);
-void initUART0(); //=> l'écriture ne fonctionne pas pour le moment
+void initUART0(void); //=> l'écriture ne fonctionne pas pour le moment
 
 #endif // __MY_FUNCTIONS_H__
