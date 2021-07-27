@@ -2,7 +2,7 @@
 //
 // usb.c - Driver for the USB Interface.
 //
-// Copyright (c) 2007-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2007-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -54,7 +54,7 @@
 #include "driverlib/debug.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/udma.h"
+//#include "driverlib/udma.h"
 #include "driverlib/usb.h"
 
 //*****************************************************************************
@@ -152,7 +152,6 @@ _USBIndexWrite(uint32_t ui32Base, uint32_t ui32Endpoint,
 // \param ui32Base specifies the USB module base address.
 // \param ui32Endpoint is the endpoint index to target for this write.
 // \param ui32IndexedReg is the indexed register to write to.
-// \param ui32Size is a value of 1 or 2 indicating the byte size of the read.
 //
 // This function is used internally to access the indexed registers for each
 // endpoint.  The only registers that are indexed are the FIFO configuration
@@ -166,7 +165,7 @@ _USBIndexRead(uint32_t ui32Base, uint32_t ui32Endpoint,
               uint32_t ui32IndexedReg, uint32_t ui32Size)
 {
     uint8_t ui8Index;
-    uint32_t ui32Value;
+    uint8_t ui8Value;
 
     //
     // Check the arguments.
@@ -194,14 +193,14 @@ _USBIndexRead(uint32_t ui32Base, uint32_t ui32Endpoint,
         //
         // Get the value.
         //
-        ui32Value = HWREGB(ui32Base + ui32IndexedReg);
+        ui8Value = HWREGB(ui32Base + ui32IndexedReg);
     }
     else
     {
         //
         // Get the value.
         //
-        ui32Value = HWREGH(ui32Base + ui32IndexedReg);
+        ui8Value = HWREGH(ui32Base + ui32IndexedReg);
     }
 
     //
@@ -212,7 +211,7 @@ _USBIndexRead(uint32_t ui32Base, uint32_t ui32Endpoint,
     //
     // Return the register's value.
     //
-    return(ui32Value);
+    return(ui8Value);
 }
 
 //*****************************************************************************

@@ -2,7 +2,7 @@
 //
 // uart.h - Defines and Macros for the UART.
 //
-// Copyright (c) 2005-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -186,6 +186,8 @@ extern "C"
 #define UART_CLOCK_SYSTEM       0x00000000
 #define UART_CLOCK_PIOSC        0x00000005
 
+
+#include "defines_HR.h"
 //*****************************************************************************
 //
 // API Function prototypes
@@ -242,7 +244,6 @@ extern void UART9BitDisable(uint32_t ui32Base);
 extern void UART9BitAddrSet(uint32_t ui32Base, uint8_t ui8Addr,
                             uint8_t ui8Mask);
 extern void UART9BitAddrSend(uint32_t ui32Base, uint8_t ui8Addr);
-extern void UARTLoopbackEnable(uint32_t ui32Base);
 
 //*****************************************************************************
 //

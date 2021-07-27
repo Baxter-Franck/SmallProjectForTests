@@ -2,7 +2,7 @@
 //
 // eeprom.c - Driver for programming the on-chip EEPROM.
 //
-// Copyright (c) 2010-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2010-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,22 +33,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_eeprom.h"
-#include "inc/hw_flash.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_sysctl.h"
-#include "inc/hw_types.h"
-#include "driverlib/debug.h"
-#include "driverlib/flash.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/eeprom.h"
+#include "hw_eeprom.h"
+#include "hw_flash.h"
+#include "hw_ints.h"
+#include "hw_sysctl.h"
+#include "hw_types.h"
+#include "debug.h"
+#include "flash.h"
+#include "interrupt.h"
+#include "sysctl.h"
+#include "eeprom.h"
 
 //*****************************************************************************
 //

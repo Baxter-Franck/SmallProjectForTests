@@ -2,7 +2,7 @@
 //
 // can.c - Driver for the CAN module.
 //
-// Copyright (c) 2006-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -46,15 +46,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_can.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_nvic.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_sysctl.h"
-#include "inc/hw_types.h"
-#include "driverlib/can.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
+#include "hw_can.h"
+#include "hw_ints.h"
+#include "hw_nvic.h"
+#include "hw_memmap.h"
+#include "hw_sysctl.h"
+#include "hw_types.h"
+#include "can.h"
+#include "debug.h"
+#include "interrupt.h"
 
 //*****************************************************************************
 //
@@ -831,7 +831,7 @@ CANIntRegister(uint32_t ui32Base, void (*pfnHandler)(void))
     IntRegister(ui8IntNumber, pfnHandler);
 
     //
-    // Enable the CAN interrupt.
+    // Enable the Ethernet interrupt.
     //
     IntEnable(ui8IntNumber);
 }
@@ -1077,13 +1077,6 @@ CANIntStatus(uint32_t ui32Base, tCANIntStsReg eIntStsReg)
 //! being immediately reentered (because the interrupt controller still sees
 //! the interrupt source asserted).
 //!
-//! \note The functions CANIntClear(), CANMessageSet(), and CANMessageClear()
-//! are not re-entrant.  If any of these functions are used in the main
-//! application code and if any of them are also used within an interrupt
-//! routine, then the corresponding interrupt for that interrupt routine should
-//! be disabled prior to the call for any of these functions.  The interrupt
-//! can be re-enabled immediately after the function call has returned.
-//!
 //! \return None.
 //
 //*****************************************************************************
@@ -1118,6 +1111,13 @@ CANIntClear(uint32_t ui32Base, uint32_t ui32IntClr)
         // CAN_IF1CMSK_CLRINTPND bit.
         //
         HWREG(ui32Base + CAN_O_IF1CMSK) = CAN_IF1CMSK_CLRINTPND;
+				
+				// cf SW-TM4C-RLN-2.1.pdf
+				// 2.3.3 Incorrect Processing in CANIntClear API in CAN Driver
+        // When clearing an interrupt for a received message, the CAN_IF1CMSK_CLRINTPND is written to the
+        // CAN_IF1CMSK register, causing it to clear the read-write bits of the register. This has been fixed by
+        // performing a read-modified-write.
+				//FWX A VERIFIER HWREG(ui32Base + CAN_O_IF1CMSK) |= CAN_IF1CMSK_CLRINTPND;
 
         //
         // Send the clear pending interrupt command to the CAN controller.
@@ -1298,8 +1298,13 @@ CANStatusGet(uint32_t ui32Base, tCANStsReg eStatusReg)
         case CAN_STS_CONTROL:
         {
             ui32Status = HWREG(ui32Base + CAN_O_STS);
+					  /* FWX
             HWREG(ui32Base + CAN_O_STS) = ~(CAN_STS_RXOK | CAN_STS_TXOK |
                                             CAN_STS_LEC_M);
+					  */
+					  // Clear TXOK or/and RXOK bit only
+            //HWREG(ui32Base + CAN_O_STS) = ~ ( ui32Status & (CAN_STS_RXOK | CAN_STS_TXOK  | CAN_STS_LEC_M ) );
+            HWREG(ui32Base + CAN_O_STS) = ~ ( ui32Status );
             break;
         }
 
@@ -1343,6 +1348,25 @@ CANStatusGet(uint32_t ui32Base, tCANStsReg eStatusReg)
         }
     }
     return(ui32Status);
+}
+
+//*****************************************************************************
+//
+//! Write LEC value to the controller status registers.
+//!
+//! \param ui32Base is the base address of the CAN controller.
+//! \param value is the LEC value register to write.
+//!
+//! This function write a value to the status register of the CAN controller.
+//! Use to set the LEC value to an unused value to detect change.
+//!
+//! \return None.
+//
+//*****************************************************************************
+/* Ajout FWX */
+void CANStatusLecSet(uint32_t ui32Base, uint32_t value)
+{
+		HWREG(ui32Base + CAN_O_STS) = value & 0x07;
 }
 
 //*****************************************************************************
@@ -1476,13 +1500,6 @@ CANErrCntrGet(uint32_t ui32Base, uint32_t *pui32RxCount,
 //!
 //! If you specify a message object buffer that already contains a message
 //! definition, it is overwritten.
-//!
-//! \note The functions CANIntClear(), CANMessageSet(), and CANMessageClear()
-//! are not re-entrant.  If any of these functions are used in the main
-//! application code and if any of them are also used within an interrupt
-//! routine, then the corresponding interrupt for that interrupt routine should
-//! be disabled prior to the call for any of these functions.  The interrupt
-//! can be re-enabled immediately after the function call has returned.
 //!
 //! \return None.
 //
@@ -1845,12 +1862,6 @@ CANMessageSet(uint32_t ui32Base, uint32_t ui32ObjID,
 //! - \b MSG_OBJ_DATA_LOST indicates that at least one message was received on
 //!   this message object and not read by the host before being overwritten.
 //!
-//! \note This function is not re-entrant.  If it is used in both main
-//! application code and in an interrupt routine, then the corresponding
-//! interrupt should be disabled prior to the call for CANMessageGet().
-//! The interrupt can be re-enabled immediately after the function call has
-//! returned.
-//!
 //! \return None.
 //
 //*****************************************************************************
@@ -2095,13 +2106,6 @@ CANMessageGet(uint32_t ui32Base, uint32_t ui32ObjID,
 //! This function frees the specified message object from use.  Once a message
 //! object has been ``cleared,'' it no longer automatically sends or receives
 //! messages, nor does it generate interrupts.
-//!
-//! \note The functions CANIntClear(), CANMessageSet(), and CANMessageClear()
-//! are not re-entrant.  If any of these functions are used in the main
-//! application code and if any of them are also used within an interrupt
-//! routine, then the corresponding interrupt for that interrupt routine should
-//! be disabled prior to the call for any of these functions.  The interrupt
-//! can be re-enabled immediately after the function call has returned.
 //!
 //! \return None.
 //

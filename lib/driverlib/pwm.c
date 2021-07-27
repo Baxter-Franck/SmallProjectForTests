@@ -2,7 +2,7 @@
 //
 // pwm.c - API for the PWM modules
 //
-// Copyright (c) 2005-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -46,14 +46,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_pwm.h"
-#include "inc/hw_sysctl.h"
-#include "inc/hw_types.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pwm.h"
+#include "hw_ints.h"
+#include "hw_memmap.h"
+#include "hw_pwm.h"
+#include "hw_sysctl.h"
+#include "hw_types.h"
+#include "debug.h"
+#include "interrupt.h"
+#include "pwm.h"
 
 //*****************************************************************************
 //
@@ -781,7 +781,6 @@ PWMOutputInvert(uint32_t ui32Base, uint32_t ui32PWMOutBits,
     ASSERT(!(ui32PWMOutBits & ~(PWM_OUT_0_BIT | PWM_OUT_1_BIT | PWM_OUT_2_BIT |
                                 PWM_OUT_3_BIT | PWM_OUT_4_BIT | PWM_OUT_5_BIT |
                                 PWM_OUT_6_BIT | PWM_OUT_7_BIT)));
-
     //
     // Read the module's INVERT output control register and set or clear the
     // requested bits.
@@ -1993,8 +1992,7 @@ PWMClockSet(uint32_t ui32Base, uint32_t ui32Config)
     // Check the arguments.
     //
     ASSERT((ui32Base == PWM0_BASE) || (ui32Base == PWM1_BASE));
-    ASSERT((ui32Config == PWM_SYSCLK_DIV_1) ||
-           (ui32Config == PWM_SYSCLK_DIV_2) ||
+    ASSERT((ui32Config == PWM_SYSCLK_DIV_2) ||
            (ui32Config == PWM_SYSCLK_DIV_4) ||
            (ui32Config == PWM_SYSCLK_DIV_8) ||
            (ui32Config == PWM_SYSCLK_DIV_16) ||

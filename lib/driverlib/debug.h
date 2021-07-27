@@ -2,7 +2,7 @@
 //
 // debug.h - Macros for assisting debug of the driver library.
 //
-// Copyright (c) 2006-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,13 +33,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
 #ifndef __DRIVERLIB_DEBUG_H__
 #define __DRIVERLIB_DEBUG_H__
-
+#include <stdint.h>
+#include "defines_HR.h"
 //*****************************************************************************
 //
 // Prototype for the function that is called when an invalid argument is passed

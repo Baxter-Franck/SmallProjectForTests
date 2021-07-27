@@ -2,7 +2,7 @@
 //
 // adc.c - Driver for the ADC.
 //
-// Copyright (c) 2005-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -46,14 +46,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_adc.h"
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_sysctl.h"
-#include "driverlib/adc.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
+#include "hw_adc.h"
+#include "hw_ints.h"
+#include "hw_memmap.h"
+#include "hw_types.h"
+#include "hw_sysctl.h"
+#include "adc.h"
+#include "debug.h"
+#include "interrupt.h"
 
 //*****************************************************************************
 //
@@ -78,7 +78,7 @@
 // sequencers.
 //
 //*****************************************************************************
-static uint8_t g_pui8OversampleFactor[2][3];
+static uint8_t g_pui8OversampleFactor[3];
 
 //*****************************************************************************
 //
@@ -107,7 +107,7 @@ _ADCIntNumberGet(uint32_t ui32Base, uint32_t ui32SequenceNum)
     {
         ui8Int = ((ui32Base == ADC0_BASE) ?
                   (INT_ADC0SS0_TM4C123 + ui32SequenceNum) :
-                  (INT_ADC1SS0_TM4C123 + ui32SequenceNum));
+                  (INT_ADC0SS0_TM4C123 + ui32SequenceNum));
     }
     else if(CLASS_IS_TM4C129)
     {
@@ -502,8 +502,6 @@ void
 ADCSequenceConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
                      uint32_t ui32Trigger, uint32_t ui32Priority)
 {
-    uint32_t ui32Gen;
-
     //
     // Check the arugments.
     //
@@ -547,18 +545,11 @@ ADCSequenceConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
     //
     // Set the source PWM module for this sequence's PWM triggers.
     //
-    ui32Gen = ui32Trigger & 0x0f;
-    if(ui32Gen >= ADC_TRIGGER_PWM0 && ui32Gen <= ADC_TRIGGER_PWM3)
-    {
-        //
-        // Set the shift for the module and generator
-        //
-        ui32Gen = (ui32Gen - ADC_TRIGGER_PWM0) * 8;
-        
-        HWREG(ui32Base + ADC_O_TSSEL) = ((HWREG(ui32Base + ADC_O_TSSEL) &
-                                         ~(0x30 << ui32Gen)) |
-                                         ((ui32Trigger & 0x30) << ui32Gen));
-    }
+    ui32SequenceNum *= 2;
+    HWREG(ui32Base + ADC_O_TSSEL) = ((HWREG(ui32Base + ADC_O_TSSEL) &
+                                      ~(0x30 << ui32SequenceNum)) |
+                                     ((ui32Trigger & 0x30) <<
+                                      ui32SequenceNum));
 }
 
 //*****************************************************************************
@@ -568,15 +559,10 @@ ADCSequenceConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
 //! \param ui32Base is the base address of the ADC module.
 //! \param ui32SequenceNum is the sample sequence number.
 //! \param ui32Step is the step to be configured.
-//! \param ui32Config is the configuration of this step; is a logical OR
+//! \param ui32Config is the configuration of this step; must be a logical OR
 //! of \b ADC_CTL_TS, \b ADC_CTL_IE, \b ADC_CTL_END, \b ADC_CTL_D, one of the
 //! input channel selects (\b ADC_CTL_CH0 through \b ADC_CTL_CH23), and one of
 //! the digital comparator selects (\b ADC_CTL_CMP0 through \b ADC_CTL_CMP7).
-//! On some parts the sample and hold time can be increased by including a 
-//! logical OR of one of \b ADC_CTL_SHOLD_4, \b ADC_CTL_SHOLD_8,
-//! \b ADC_CTL_SHOLD_16, \b ADC_CTL_SHOLD_32, \b ADC_CTL_SHOLD_64, 
-//! \b ADC_CTL_SHOLD_128 or \b ADC_CTL_SHOLD_256. The default sample time is 4
-//! ADC clocks.
 //!
 //! This function configures the ADC for one step of a sample sequence.  The
 //! ADC can be configured for single-ended or differential operation (the
@@ -938,7 +924,6 @@ ADCSoftwareOversampleConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
                                uint32_t ui32Factor)
 {
     uint32_t ui32Value;
-    uint32_t ui32ADCInst;
 
     //
     // Check the arguments.
@@ -957,21 +942,9 @@ ADCSoftwareOversampleConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
     }
 
     //
-    // Evaluate the ADC Instance.
-    //
-    if(ui32Base == ADC0_BASE)
-    {
-        ui32ADCInst = 0;
-    }
-    else
-    {
-        ui32ADCInst = 1;
-    }
-
-    //
     // Save the shift factor.
     //
-    g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum] = ui32Value;
+    g_pui8OversampleFactor[ui32SequenceNum] = ui32Value;
 }
 
 //*****************************************************************************
@@ -995,30 +968,14 @@ void
 ADCSoftwareOversampleStepConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
                                    uint32_t ui32Step, uint32_t ui32Config)
 {
-    uint32_t ui32ADCInst;
-
-    //
-    // Evaluate the ADC Instance.
-    //
-    if(ui32Base == ADC0_BASE)
-    {
-        ui32ADCInst = 0;
-    }
-    else
-    {
-        ui32ADCInst = 1;
-    }
-
     //
     // Check the arguments.
     //
     ASSERT((ui32Base == ADC0_BASE) || (ui32Base == ADC1_BASE));
     ASSERT(ui32SequenceNum < 3);
     ASSERT(((ui32SequenceNum == 0) &&
-            (ui32Step < 
-            (8 >> g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum]))) ||
-           (ui32Step < 
-           (4 >> g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum])));
+            (ui32Step < (8 >> g_pui8OversampleFactor[ui32SequenceNum]))) ||
+           (ui32Step < (4 >> g_pui8OversampleFactor[ui32SequenceNum])));
 
     //
     // Get the offset of the sequence to be configured.
@@ -1028,14 +985,13 @@ ADCSoftwareOversampleStepConfigure(uint32_t ui32Base, uint32_t ui32SequenceNum,
     //
     // Compute the shift for the bits that control this step.
     //
-    ui32Step *= 4 << g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum];
+    ui32Step *= 4 << g_pui8OversampleFactor[ui32SequenceNum];
 
     //
     // Loop through the hardware steps that make up this step of the software
     // oversampled sequence.
     //
-    for(ui32SequenceNum = 
-        (1 << g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum]);
+    for(ui32SequenceNum = 1 << g_pui8OversampleFactor[ui32SequenceNum];
         ui32SequenceNum; ui32SequenceNum--)
     {
         //
@@ -1098,20 +1054,6 @@ ADCSoftwareOversampleDataGet(uint32_t ui32Base, uint32_t ui32SequenceNum,
                              uint32_t *pui32Buffer, uint32_t ui32Count)
 {
     uint32_t ui32Idx, ui32Accum;
-    uint32_t ui32ADCInst;
-
-    //
-    // Evaluate the ADC Instance.
-    //
-    if(ui32Base == ADC0_BASE)
-    {
-        ui32ADCInst = 0;
-    }
-    else
-    {
-        ui32ADCInst = 1;
-    }
-
 
     //
     // Check the arguments.
@@ -1119,10 +1061,8 @@ ADCSoftwareOversampleDataGet(uint32_t ui32Base, uint32_t ui32SequenceNum,
     ASSERT((ui32Base == ADC0_BASE) || (ui32Base == ADC1_BASE));
     ASSERT(ui32SequenceNum < 3);
     ASSERT(((ui32SequenceNum == 0) &&
-            (ui32Count < 
-            (8 >> g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum]))) ||
-            (ui32Count < 
-            (4 >> g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum])));
+            (ui32Count < (8 >> g_pui8OversampleFactor[ui32SequenceNum]))) ||
+           (ui32Count < (4 >> g_pui8OversampleFactor[ui32SequenceNum])));
 
     //
     // Get the offset of the sequence to be read.
@@ -1138,8 +1078,8 @@ ADCSoftwareOversampleDataGet(uint32_t ui32Base, uint32_t ui32SequenceNum,
         // Compute the sum of the samples.
         //
         ui32Accum = 0;
-        for(ui32Idx = 1 << g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum];
-            ui32Idx; ui32Idx--)
+        for(ui32Idx = 1 << g_pui8OversampleFactor[ui32SequenceNum]; ui32Idx;
+            ui32Idx--)
         {
             //
             // Read the FIFO and add it to the accumulator.
@@ -1150,8 +1090,7 @@ ADCSoftwareOversampleDataGet(uint32_t ui32Base, uint32_t ui32SequenceNum,
         //
         // Write the averaged sample to the output buffer.
         //
-        *pui32Buffer++ = 
-            ui32Accum >> g_pui8OversampleFactor[ui32ADCInst][ui32SequenceNum];
+        *pui32Buffer++ = ui32Accum >> g_pui8OversampleFactor[ui32SequenceNum];
     }
 }
 
@@ -1666,12 +1605,7 @@ ADCIntStatusEx(uint32_t ui32Base, bool bMasked)
 void
 ADCIntClearEx(uint32_t ui32Base, uint32_t ui32IntFlags)
 {
-    //
-    // Note: The interrupt bits are "W1C" so we DO NOT use a logical OR
-    // here to clear the requested bits. Doing so would clear all outstanding
-    // interrupts rather than just those which the caller has specified.
-    //
-    HWREG(ui32Base + ADC_O_ISC) = ui32IntFlags;
+    HWREG(ui32Base + ADC_O_ISC) |= ui32IntFlags;
 }
 
 //*****************************************************************************
@@ -1682,10 +1616,12 @@ ADCIntClearEx(uint32_t ui32Base, uint32_t ui32IntFlags)
 //! \param ui32Ref is the reference to use.
 //!
 //! The ADC reference is set as specified by \e ui32Ref.  It must be one of
-//! \b ADC_REF_INT, or \b ADC_REF_EXT_3V for internal or external reference
-//! If \b ADC_REF_INT is chosen, then an internal 3V reference is used and 
-//! no external reference is needed.  If \b ADC_REF_EXT_3V is chosen, then
-//! a 3V reference must be supplied to the AVREF pin.
+//! \b ADC_REF_INT, \b ADC_REF_EXT_3V, or \b ADC_REF_EXT_1V for internal or
+//! external reference.  If \b ADC_REF_INT is chosen, then an internal 3V
+//! reference is used and no external reference is needed.  If
+//! \b ADC_REF_EXT_3V is chosen, then a 3V reference must be supplied to the
+//! AVREF pin.  If \b ADC_REF_EXT_1V is chosen, then a 1V external reference
+//! must be supplied to the AVREF pin.
 //!
 //! \note The ADC reference can only be selected on parts that have an external
 //! reference.  Consult the data sheet for your part to determine if there is
@@ -1701,7 +1637,8 @@ ADCReferenceSet(uint32_t ui32Base, uint32_t ui32Ref)
     // Check the arguments.
     //
     ASSERT((ui32Base == ADC0_BASE) || (ui32Base == ADC1_BASE));
-    ASSERT((ui32Ref == ADC_REF_INT) || (ui32Ref == ADC_REF_EXT_3V));
+    ASSERT((ui32Ref == ADC_REF_INT) || (ui32Ref == ADC_REF_EXT_3V) ||
+           (ui32Ref == ADC_REF_EXT_1V));
 
     //
     // Set the reference.
@@ -1717,7 +1654,7 @@ ADCReferenceSet(uint32_t ui32Base, uint32_t ui32Ref)
 //! \param ui32Base is the base address of the ADC module.
 //!
 //! Returns the value of the ADC reference setting.  The returned value is one
-//! of \b ADC_REF_INT, or \b ADC_REF_EXT_3V.
+//! of \b ADC_REF_INT, \b ADC_REF_EXT_3V, or \b ADC_REF_EXT_1V.
 //!
 //! \note The value returned by this function is only meaningful if used on a
 //! part that is capable of using an external reference.  Consult the data
@@ -1983,12 +1920,16 @@ ADCClockConfigSet(uint32_t ui32Base, uint32_t ui32Config,
     // Check the argument.
     //
     ASSERT(ui32Base == ADC0_BASE);
-    ASSERT((ui32ClockDiv - 1) <= (ADC_CC_CLKDIV_M >> ADC_CC_CLKDIV_S));
 
     //
     // A rate must be supplied.
     //
     ASSERT((ui32Config & ADC_CLOCK_RATE_FULL) != 0);
+
+    //
+    // Clock must be valid divider.
+    //
+    ASSERT(((ui32ClockDiv - 1) & ~ADC_CC_CLKDIV_M) == 0);
 
     //
     // Write the sample conversion rate.
@@ -2046,7 +1987,7 @@ ADCClockConfigGet(uint32_t ui32Base, uint32_t *pui32ClockDiv)
     //
     // Read the current configuration.
     //
-    ui32Config = HWREG(ADC0_BASE + ADC_O_CC);
+    ui32Config = HWREG(ui32Base + ADC_O_CC);
 
     //
     // If the clock divider was requested provide the current value.
@@ -2065,7 +2006,7 @@ ADCClockConfigGet(uint32_t ui32Base, uint32_t *pui32ClockDiv)
     //
     // Add in the sample interval to the configuration.
     //
-    ui32Config |= (HWREG(ADC0_BASE + ADC_O_PC) & ADC_PC_SR_M) << 4;
+    ui32Config = (HWREG(ui32Base + ADC_O_PC) & ADC_PC_SR_M) << 4;
 
     return(ui32Config);
 }

@@ -2,7 +2,7 @@
 //
 // eeprom.h - Prototypes for the EEPROM driver.
 //
-// Copyright (c) 2010-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2010-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -249,6 +249,7 @@ extern void EEPROMIntEnable(uint32_t ui32IntFlags);
 extern void EEPROMIntDisable(uint32_t ui32IntFlags);
 extern uint32_t EEPROMIntStatus(bool bMasked);
 extern void EEPROMIntClear(uint32_t ui32IntFlags);
+extern void Ddi_eeprom_initSoft(void);
 
 #ifndef DEPRECATED
 //*****************************************************************************

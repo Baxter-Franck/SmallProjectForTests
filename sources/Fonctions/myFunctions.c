@@ -16,8 +16,8 @@ void exempleEEPROMnotinWhileLOOP(void)
     // ecriture en eeprom
     for(i=0;i<=0xFF;i++)
     {
-        myEepromWrite(i,255-i);
-        sleep_ms(4);
+        myEepromWrite(i,10);
+        //sleep_ms(4);
     }
 
 	i=0;
@@ -271,6 +271,35 @@ void exampleChenillard(int type)
     }
 
 
+}
+
+void initUART0()
+{
+
+    // Enable GPIO port A which is used for UART0 pins.
+    // change this to whichever GPIO port you are using.
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    // Enable UART0 so that we can configure the clock.
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+
+    // Configure the pin muxing for UART0 functions on port A0 and A1.
+    // This step is not necessary if your part does not support pin muxing.
+    // change this to select the port/pin you are using.
+    GPIOPinConfigure(GPIO_PA0_U0RX);
+    GPIOPinConfigure(GPIO_PA1_U0TX);
+
+    // Select the alternate (UART) function for these pins.
+    // change this to select the port/pin you are using.
+    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    // Initialize the UART for console I/O.
+	UARTConfigSetExpClk( UART0_BASE,
+		HR_Sys_Clock_Freq,
+		115200,
+		( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) );
+	
+	UARTEnable ( UART0_BASE );
 }
 
 void sleep_ms(uint32_t time)

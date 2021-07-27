@@ -8,6 +8,8 @@
 #include "hw_ints.h"
 #include "myEeprom.h"
 #include <string.h> // for memset
+#include "uart.h"
+#include "uartstdio.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,
@@ -31,5 +33,6 @@ void setLed(uint8_t v);
 BUTTON_TYPE checkButtonPress(void);
 uint8_t checkButtonPressInt(void);
 void configInterrupt(void);
+void initUART0(); //=> l'écriture ne fonctionne pas pour le moment
 
 #endif // __MY_FUNCTIONS_H__

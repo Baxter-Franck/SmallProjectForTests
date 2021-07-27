@@ -360,9 +360,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>PART_TM4C1294KCPDT</Define>
+              <Define>PART_TM4C1294KCPDT UART_PRINTF_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>C:\ti\TivaWare_C_Series-2.2.0.295\driverlib;C:\ti\TivaWare_C_Series-2.2.0.295\inc;C:\ti\TivaWare_C_Series-2.2.0.295;.\sources;.\sources\fonctions</IncludePath>
+              <IncludePath>.\lib\driverlib;.\lib\inc;.\lib;.\sources;.\sources\fonctions</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -479,6 +479,16 @@
               <FileName>i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>C:\ti\TivaWare_C_Series-2.2.0.295\driverlib\i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\driverlib\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>uartstdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\driverlib\uartstdio.c</FilePath>
             </File>
           </Files>
         </Group>

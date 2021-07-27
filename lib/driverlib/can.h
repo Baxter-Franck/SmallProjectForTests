@@ -2,7 +2,7 @@
 //
 // can.h - Defines and Macros for the CAN controller.
 //
-// Copyright (c) 2006-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2006-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -436,6 +436,7 @@ extern void CANMessageSet(uint32_t ui32Base, uint32_t ui32ObjID,
 extern bool CANRetryGet(uint32_t ui32Base);
 extern void CANRetrySet(uint32_t ui32Base, bool bAutoRetry);
 extern uint32_t CANStatusGet(uint32_t ui32Base, tCANStsReg eStatusReg);
+extern void CANStatusLecSet(uint32_t ui32Base, uint32_t value);
 
 //*****************************************************************************
 //

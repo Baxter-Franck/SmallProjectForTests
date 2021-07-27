@@ -2,7 +2,7 @@
 //
 // interrupt.c - Driver for the NVIC Interrupt Controller.
 //
-// Copyright (c) 2005-2020 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2005-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.1.0.12573 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -46,12 +46,18 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_ints.h"
-#include "inc/hw_nvic.h"
-#include "inc/hw_types.h"
-#include "driverlib/cpu.h"
-#include "driverlib/debug.h"
-#include "driverlib/interrupt.h"
+#include "hw_ints.h"
+#include "hw_nvic.h"
+#include "hw_types.h"
+#include "cpu.h"
+#include "debug.h"
+#include "interrupt.h"
+
+#ifdef ccs
+uint32_t __Vectors[];
+#else
+extern uint32_t __Vectors[];
+#endif
 
 //*****************************************************************************
 //
@@ -330,11 +336,21 @@ IntRegister(uint32_t ui32Interrupt, void (*pfnHandler)(void))
         // table.
         //
         ui32Value = HWREG(NVIC_VTABLE);
+				if( ui32Value == (uint32_t) __Vectors ) // FWX
+				{
         for(ui32Idx = 0; ui32Idx < NUM_INTERRUPTS; ui32Idx++)
         {
             g_pfnRAMVectors[ui32Idx] = (void (*)(void))HWREG((ui32Idx * 4) +
                                                              ui32Value);
         }
+				}
+				else // FWX
+				{
+					for(ui32Idx = 0; ui32Idx < NUM_INTERRUPTS; ui32Idx++)
+					{
+            g_pfnRAMVectors[ui32Idx] = (void (*)(void)) __Vectors[ui32Idx];
+					}
+				} // End FWX
 
         //
         // Point the NVIC at the RAM vector table.
