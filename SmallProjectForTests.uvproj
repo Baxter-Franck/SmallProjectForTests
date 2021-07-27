@@ -445,6 +445,11 @@
               <FileType>1</FileType>
               <FilePath>.\sources\fonctions\watchdog_ext.c</FilePath>
             </File>
+            <File>
+              <FileName>myEeprom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Fonctions\myEeprom.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

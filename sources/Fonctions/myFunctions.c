@@ -5,8 +5,31 @@ void GPIOL_Handler(void);
 extern int cpt,taille;
 extern uint8_t value;
 uint8_t valueLed;
-
+uint16_t i;
 uint32_t rxByte;
+uint8_t array[256];
+
+void exempleEEPROMnotinWhileLOOP(void)
+{
+    memset(array, 0, sizeof(array)); // init array at 0
+
+    // ecriture en eeprom
+    for(i=0;i<=0xFF;i++)
+    {
+        myEepromWrite(i,255-i);
+        sleep_ms(4);
+    }
+
+	i=0;
+	
+    // lecture de l'eeprom et mise dans le tableau arry
+    for(i=0;i<=0xFF;i++)
+    {
+        array[i] = myEepromRead(i);
+        sleep_ms(4);
+    }
+	i=0;
+}
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
 {
