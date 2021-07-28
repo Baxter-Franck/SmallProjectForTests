@@ -7,28 +7,96 @@ extern uint8_t value;
 uint8_t valueLed;
 uint16_t i;
 uint32_t rxByte;
-uint8_t array[256];
+const uint8_t size = 20;
+uint8_t array[size];
+uint8_t array1[size];
 
 void exempleEEPROMnotinWhileLOOP(void)
 {
     memset(array, 42, sizeof(array)); // init array at 0
 
     // ecriture en eeprom
-    for(i=0;i<=0xFF;i++)
+    for(i=0; i<size ;i++)
     {
-        array[i] = myEepromWrite(i,69);
-        //sleep_ms(4);
+       array[i] = myEepromWrite(i,234);
+        //sleep_ms(10);
     }
-
 	i=0;
 	
     // lecture de l'eeprom et mise dans le tableau arry
-    for(i=0;i<=0xFF;i++)
+    for(i=0; i<size ;i++)
     {
         array[i] = myEepromRead(i);
         //sleep_ms(10);
     }
 	i=0;
+}
+
+void exempleEEPROMDriverFrancknotinWhileLOOP(void)
+{  
+    memset(array, 42, sizeof(array)); // init array at 0
+	memset(array1, 43, sizeof(array1)); // init array at 0
+
+	// ecriture en eeprom BLOCK_0
+    for(i=0; i<size ;i++)
+    {
+        //array[i] = I2CSendFranck(EEPROM_BLOCK_0, i, 1, 100);
+        array[i] = I2CSendOneByteFranck(EEPROM_BLOCK_0, i, 10+i);
+        //sleep_ms(5);
+    }
+
+    i=0;
+	
+    // ecriture en eeprom BLOCK_1
+    for(i=0; i<size ;i++)
+    {
+        //array1[i] = I2CSendFranck(EEPROM_BLOCK_1, i, 1, 101);
+        array1[i] = I2CSendOneByteFranck(EEPROM_BLOCK_1, i, 20+i);
+        //sleep_ms(5);
+    }
+
+	i=0;
+	// lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
+    for(i=0; i<size ;i++)
+    {
+		array1[i] = i;
+        array[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_0, i);
+        //sleep_ms(5);
+    }
+	
+    i=0;
+
+    // lecture de l'eeprom BLOCK_1 et mise dans le tableau arry
+    for(i=0; i<size ;i++)
+    {
+        array1[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_1, i);
+        //sleep_ms(5);
+    }
+    i=0;
+}
+
+void exempleIO2ChenilladWithDriverFranck(void)
+{
+    for(i=200;i>50;i-=20){
+            tca9535.Output.ports.P0.all ^= 0xFF;
+            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+            sleep_ms(i);
+            }
+            for(i=50;i>=1;i--){
+            tca9535.Output.ports.P0.all ^= 0xFF;
+            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+            sleep_ms(i);
+            }
+            for(i=1;i<=50;i++){
+            tca9535.Output.ports.P0.all ^= 0xFF;
+            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+            sleep_ms(i);
+            }
+            for(i=50;i<=200;i+=20){
+            tca9535.Output.ports.P0.all ^= 0xFF;
+            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+            sleep_ms(i);
+            }
 }
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
@@ -318,3 +386,19 @@ void sleep_s(uint32_t time)
     SysCtlDelay(time*80*1e6/3);
 }
 
+void testVariableParameter(uint8_t num_of_args, ...)
+{
+    va_list vargs;
+    int i=0;
+    uint8_t arrayLocal[255];
+    ASSERT(num_of_args < 255);
+    memset(arrayLocal, 0, sizeof(arrayLocal));
+
+
+    va_start(vargs,num_of_args);
+
+    for(i=0;i<num_of_args;i++)
+        arrayLocal[i] = va_arg(vargs,int);
+
+    va_end(vargs);
+}

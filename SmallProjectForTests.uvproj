@@ -450,6 +450,11 @@
               <FileType>1</FileType>
               <FilePath>.\sources\Fonctions\myEeprom.c</FilePath>
             </File>
+            <File>
+              <FileName>ddi_I2C_franck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Fonctions\ddi_I2C_franck.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
