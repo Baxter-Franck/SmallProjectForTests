@@ -11,6 +11,48 @@ const uint8_t size = 20;
 uint8_t array[size];
 uint8_t array1[size];
 
+void exempleDDI_EEPROM_INTERRUP_notinWhileLOOP(void)
+{
+    memset(array, 42, sizeof(array)); // init array at 0
+    memset(array1, 43, sizeof(array1)); // init array at 0
+
+	i=0;
+    // ecriture en eeprom BLOCK_0
+    for(i=0; i<size ;i++)
+    {
+        value = 100+i;
+        array[i] = DdiScaleEepromI2cWrite(BLOCK_0_EEPROM, i, &value, 1);
+		//sleep_ms(5);
+    }
+
+    i=0;
+
+    // ecriture en eeprom BLOCK_1
+    for(i=0; i<size ;i++)
+    {
+        array1[i] = DdiScaleEepromI2cWrite(BLOCK_1_EEPROM, i, (uint8_t *)i+200, 1);
+		//sleep_ms(5);
+    }
+
+    i=0;
+    // lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
+    for(i=0; i<size ;i++)
+    {
+        DdiScaleEepromI2cRead(BLOCK_0_EEPROM, i, &array[i], 1);
+        //sleep_ms(5);
+    }
+
+    i=0;
+
+    // lecture de l'eeprom BLOCK_1 et mise dans le tableau arry
+    for(i=0; i<size ;i++)
+    {
+        DdiScaleEepromI2cRead(BLOCK_1_EEPROM, i, &array1[i], 1);
+        sleep_ms(5);
+    }
+    i=0;
+}
+
 void exempleEEPROMnotinWhileLOOP(void)
 {
     memset(array, 42, sizeof(array)); // init array at 0
@@ -18,59 +60,59 @@ void exempleEEPROMnotinWhileLOOP(void)
     // ecriture en eeprom
     for(i=0; i<size ;i++)
     {
-       array[i] = myEepromWrite(i,234);
+        array[i] = myEepromWrite(i,234);
         //sleep_ms(10);
     }
-	i=0;
-	
+    i=0;
+
     // lecture de l'eeprom et mise dans le tableau arry
     for(i=0; i<size ;i++)
     {
         array[i] = myEepromRead(i);
         //sleep_ms(10);
     }
-	i=0;
+    i=0;
 }
 
 void exempleEEPROMDriverFrancknotinWhileLOOP(void)
 {  
     memset(array, 42, sizeof(array)); // init array at 0
-	memset(array1, 43, sizeof(array1)); // init array at 0
+    memset(array1, 43, sizeof(array1)); // init array at 0
 
-	// ecriture en eeprom BLOCK_0
+    // ecriture en eeprom BLOCK_0
     for(i=0; i<size ;i++)
     {
-        //array[i] = I2CSendFranck(EEPROM_BLOCK_0, i, 1, 100);
-        array[i] = I2CSendOneByteFranck(EEPROM_BLOCK_0, i, 10+i);
+        array[i] = I2CSendFranck(EEPROM_BLOCK_0, i, 1, 10+i);
+        //array[i] = I2CSendOneByteFranck(EEPROM_BLOCK_0, i, 10+i);
         //sleep_ms(5);
     }
 
     i=0;
-	
+
     // ecriture en eeprom BLOCK_1
     for(i=0; i<size ;i++)
     {
-        //array1[i] = I2CSendFranck(EEPROM_BLOCK_1, i, 1, 101);
-        array1[i] = I2CSendOneByteFranck(EEPROM_BLOCK_1, i, 20+i);
+        array1[i] = I2CSendFranck(EEPROM_BLOCK_1, i, 1, 101+i);
+        //array1[i] = I2CSendOneByteFranck(EEPROM_BLOCK_1, i, 20+i);
         //sleep_ms(5);
     }
 
-	i=0;
-	// lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
+    i=0;
+    // lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
     for(i=0; i<size ;i++)
     {
-		array1[i] = i;
+        array1[i] = i;
         array[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_0, i);
-        //sleep_ms(5);
+        sleep_ms(5);
     }
-	
+
     i=0;
 
     // lecture de l'eeprom BLOCK_1 et mise dans le tableau arry
     for(i=0; i<size ;i++)
     {
         array1[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_1, i);
-        //sleep_ms(5);
+        sleep_ms(5);
     }
     i=0;
 }
@@ -78,25 +120,25 @@ void exempleEEPROMDriverFrancknotinWhileLOOP(void)
 void exempleIO2ChenilladWithDriverFranck(void)
 {
     for(i=200;i>50;i-=20){
-            tca9535.Output.ports.P0.all ^= 0xFF;
-            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-            sleep_ms(i);
-            }
-            for(i=50;i>=1;i--){
-            tca9535.Output.ports.P0.all ^= 0xFF;
-            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-            sleep_ms(i);
-            }
-            for(i=1;i<=50;i++){
-            tca9535.Output.ports.P0.all ^= 0xFF;
-            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-            sleep_ms(i);
-            }
-            for(i=50;i<=200;i+=20){
-            tca9535.Output.ports.P0.all ^= 0xFF;
-            value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-            sleep_ms(i);
-            }
+        tca9535.Output.ports.P0.all ^= 0xFF;
+        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+        sleep_ms(i);
+    }
+    for(i=50;i>=1;i--){
+        tca9535.Output.ports.P0.all ^= 0xFF;
+        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+        sleep_ms(i);
+    }
+    for(i=1;i<=50;i++){
+        tca9535.Output.ports.P0.all ^= 0xFF;
+        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+        sleep_ms(i);
+    }
+    for(i=50;i<=200;i+=20){
+        tca9535.Output.ports.P0.all ^= 0xFF;
+        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
+        sleep_ms(i);
+    }
 }
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
@@ -362,12 +404,12 @@ void initUART0(void)
     GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
     // Initialize the UART for console I/O.
-	UARTConfigSetExpClk( UART0_BASE,
-		HR_Sys_Clock_Freq,
-		115200,
-		( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) );
-	
-	UARTEnable ( UART0_BASE );
+    UARTConfigSetExpClk( UART0_BASE,
+                         HR_Sys_Clock_Freq,
+                         115200,
+                         ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) );
+
+    UARTEnable ( UART0_BASE );
 }
 
 void sleep_ms(uint32_t time)

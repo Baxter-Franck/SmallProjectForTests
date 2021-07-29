@@ -1,6 +1,7 @@
 #include "ddi_I2C_franck.h"
 
 uint32_t var =0 ;
+#define ERR_MAXRETRY 0x7000
 
 void InitI2C1_Franck(void)
 {
@@ -15,9 +16,6 @@ void InitI2C1_Franck(void)
 
     //enable GPIO peripheral that contains I2C 1
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);
-
-    //reset module
-    SysCtlPeripheralReset(SYSCTL_PERIPH_I2C_USED);
 
     // Configure the pin muxing for I2C1 functions on port G0 and G1.
     GPIOPinConfigure(GPIO_PG0_I2C1SCL);
@@ -37,7 +35,7 @@ void InitI2C1_Franck(void)
     //I2CMasterTimeoutSet(I2C_USED, 0x7d); //franck:
 
     //clear I2C FIFOs
-    HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
+    //HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
 }
 
 uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...)
@@ -45,11 +43,11 @@ uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...
     uint16_t i=0;
     uint8_t data=0;
     va_list vargs;
-    uint16_t timeOutI2C = 0;
+    uint32_t timeOutI2C = 0;
     uint32_t err=0;
 
     //clear I2C FIFOs
-    HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
+    //HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
 
     // Tell the master module what address it will place on the bus when
     // communicating with the slave.
@@ -72,8 +70,8 @@ uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...
 
         // Wait until MCU is done transferring.
         timeOutI2C = 0;
-        while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-        if(timeOutI2C>=2000)
+        while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+        if(timeOutI2C>=ERR_MAXRETRY)
             return I2C_ERROR_TIMEOUT_1;
 
         //"close" variable argument list
@@ -86,8 +84,8 @@ uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...
 
         // Wait until MCU is done transferring.
         timeOutI2C = 0;
-        while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-        if(timeOutI2C>=2000)
+        while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+        if(timeOutI2C>=ERR_MAXRETRY)
             return I2C_ERROR_TIMEOUT_1;
 
         //send num_of_args-2 pieces of data, using the
@@ -103,8 +101,8 @@ uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...
 
             // Wait until MCU is done transferring.
             timeOutI2C = 0;
-            while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-            if(timeOutI2C>=2000)
+            while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+            if(timeOutI2C>=ERR_MAXRETRY)
                 return I2C_ERROR_TIMEOUT_2;
         }
 
@@ -115,12 +113,26 @@ uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...
         I2CMasterControl(I2C_USED, I2C_MASTER_CMD_BURST_SEND_FINISH);
         // Wait until MCU is done transferring.
         timeOutI2C = 0;
-        while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-        if(timeOutI2C>=2000)
+        while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+        if(timeOutI2C>=ERR_MAXRETRY)
             return I2C_ERROR_TIMEOUT_3;
-
-        //"close" variable args list
+		
+		//"close" variable args list
         va_end(vargs);
+		
+		//Write ACK ?
+		I2CMasterSlaveAddrSet(I2C_USED, slave_addr, false);
+		I2CMasterControl(I2C_USED, I2C_MASTER_CMD_SINGLE_SEND);
+		timeOutI2C = 0;
+		while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+        if(timeOutI2C>=ERR_MAXRETRY)
+            return I2C_ERROR_TIMEOUT_4;
+		
+		//Waite ACK
+		timeOutI2C=0;
+		while(I2CMasterErr(I2C_USED)!=I2C_MASTER_ERR_NONE && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+        if(timeOutI2C>=ERR_MAXRETRY)
+            return I2CMasterErr(I2C_USED);  
     }
 
     err = I2CMasterErr(I2C_USED);
@@ -136,7 +148,7 @@ uint8_t I2CSendOneByteFranck(uint8_t slave_addr, uint8_t CMD, uint8_t value)
     uint32_t err=0;
 
     //clear I2C FIFOs
-    HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
+    //HWREG(I2C_USED + I2C_O_FIFOCTL) = 80008000;
 
     // Tell the master module what address it will place on the bus when
     // communicating with the slave.
@@ -148,8 +160,8 @@ uint8_t I2CSendOneByteFranck(uint8_t slave_addr, uint8_t CMD, uint8_t value)
 
     // Wait until MCU is done transferring.
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+    if(timeOutI2C>=ERR_MAXRETRY)
         return I2C_ERROR_TIMEOUT_1;
 
     //put last piece of data into I2C FIFO
@@ -157,8 +169,8 @@ uint8_t I2CSendOneByteFranck(uint8_t slave_addr, uint8_t CMD, uint8_t value)
     I2CMasterControl(I2C_USED, I2C_MASTER_CMD_BURST_SEND_FINISH);
     // Wait until MCU is done transferring.
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C_USED) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C_USED) && timeOutI2C <ERR_MAXRETRY)timeOutI2C++;
+    if(timeOutI2C>=ERR_MAXRETRY)
         return I2C_ERROR_TIMEOUT_3;
 
     err = I2CMasterErr(I2C_USED);
@@ -211,8 +223,6 @@ uint32_t I2CReceiveOneByteFranck(uint32_t slave_addr, uint8_t CMD)
         return I2CMasterDataGet(I2C_USED);
      */
 
-    //clear I2C FIFOs
-    HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;
     I2CMasterSlaveAddrSet(I2C_USED, slave_addr, false);
     I2CMasterDataPut(I2C_USED, CMD);
     I2CMasterControl(I2C_USED, I2C_MASTER_CMD_SINGLE_SEND);

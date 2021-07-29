@@ -14,6 +14,7 @@
 #include "stdint.h"
 #include "debug.h" // for ASSERT
 #include "ddi_I2C_franck.h"
+#include "ddi_scale_eeprom_i2c.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,
@@ -28,6 +29,7 @@ void exempleButtonPressInt(void);
 void exempleIO2Chenillard(uint8_t type, uint32_t delay);
 void exempleIO2ChenilladWithDriverFranck(void);
 void exempleEEPROMDriverFrancknotinWhileLOOP(void);
+void exempleDDI_EEPROM_INTERRUP_notinWhileLOOP(void);
 void exempleEEPROMnotinWhileLOOP(void);
 
 void setGreenLed(bool v);
