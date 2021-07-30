@@ -456,9 +456,9 @@
               <FilePath>.\sources\Fonctions\ddi_I2C_franck.c</FilePath>
             </File>
             <File>
-              <FileName>ddi_scale_eeprom_i2c.c</FileName>
+              <FileName>ddi_scale_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\Fonctions\ddi_scale_eeprom_i2c.c</FilePath>
+              <FilePath>.\sources\Fonctions\ddi_scale_i2c.c</FilePath>
             </File>
           </Files>
         </Group>

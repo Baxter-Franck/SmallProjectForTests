@@ -58,7 +58,7 @@ __heap_limit
 ; External declaration for the interrupt handler used by the application.
 ;
 ;******************************************************************************
-				EXTERN DdiScaleEepromI2cIntHandler
+;Ne pas utiliser d'interruption ICI remapage des int dans le code C
 					
 
 ; Vector Table Mapped to Address 0 at Reset
@@ -124,8 +124,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     SSI1_Handler              ;  34: SSI1 Rx and Tx
                 DCD     TIMER3A_Handler           ;  35: Timer 3 subtimer A
                 DCD     TIMER3B_Handler           ;  36: Timer 3 subtimer B
-                ;DCD     I2C1_Handler              ;  37: I2C1 Master and Slave
-				DCD		DdiScaleEepromI2cIntHandler ; 37: I2C1 Master Interrup [EEPROM]
+                DCD     I2C1_Handler              ;  37: I2C1 Master and Slave
                 DCD     CAN0_Handler              ;  38: CAN0
                 DCD     CAN1_Handler              ;  39: CAN1
                 DCD     ETH_Handler               ;  40: Ethernet
@@ -504,13 +503,7 @@ I2C1_Handler\
                 PROC
                 EXPORT  I2C1_Handler [WEAK]
                 B       .
-                ENDP
-					
-;DdiScaleEepromI2cIntHandler\
-;                PROC
-;                EXPORT  DdiScaleEepromI2cIntHandler [WEAK]
-;                B       .
-;                ENDP
+                ENDP	
 
 CAN0_Handler\
                 PROC

@@ -19,6 +19,13 @@
 
 #define EEPROM_BLOCK_0 0x50
 #define EEPROM_BLOCK_1 0x51
+#define EEPROM_BLOCK_2 0x52
+#define EEPROM_BLOCK_3 0x53
+#define EEPROM_BLOCK_4 0x54
+#define EEPROM_BLOCK_5 0x55
+#define EEPROM_BLOCK_6 0x56
+#define EEPROM_BLOCK_7 0x57
+
 
 void InitI2C1_Franck(void);
 uint8_t I2CSendFranck(uint8_t slave_addr, uint8_t CMD, uint8_t nbOctetsSend, ...);

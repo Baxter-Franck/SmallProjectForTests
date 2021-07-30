@@ -7,114 +7,48 @@ extern uint8_t value;
 uint8_t valueLed;
 uint16_t i;
 uint32_t rxByte;
-const uint8_t size = 20;
+const uint16_t size = 200;
 uint8_t array[size];
 uint8_t array1[size];
+uint8_t array2[size];
 
-void exempleDDI_EEPROM_INTERRUP_notinWhileLOOP(void)
+void NOT_IN_LOOP_rw_eeprom_INT(void)
 {
     memset(array, 42, sizeof(array)); // init array at 0
     memset(array1, 43, sizeof(array1)); // init array at 0
+    memset(array2, 44, sizeof(array2)); // init array at 0
 
 	i=0;
-    // ecriture en eeprom BLOCK_0
+    // ecriture en eeprom BLOCK_0 et BLOCK_1
     for(i=0; i<size ;i++)
-    {
-        value = 100+i;
-        array[i] = DdiScaleEepromI2cWrite(BLOCK_0_EEPROM, i, &value, 1);
-		//sleep_ms(5);
-    }
+		 array[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_0, i, 10+i);
+
+	for(i=0; i<size ;i++)
+		 array1[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_1, i, 20+i);
+
+    i=0;
+    // lecture de l'eeprom BLOCK_0 et BLOCK_1 et mise dans le tableau array
+    for(i=0; i<size ;i++)
+		array[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_0,i);
+
+	for(i=0; i<size ;i++)
+		array1[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_1,i);
 
     i=0;
 
-    // ecriture en eeprom BLOCK_1
+	i = sizeof(array2);
+
     for(i=0; i<size ;i++)
-    {
-        array1[i] = DdiScaleEepromI2cWrite(BLOCK_1_EEPROM, i, (uint8_t *)i+200, 1);
-		//sleep_ms(5);
-    }
-
-    i=0;
-    // lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
-    for(i=0; i<size ;i++)
-    {
-        DdiScaleEepromI2cRead(BLOCK_0_EEPROM, i, &array[i], 1);
-        //sleep_ms(5);
-    }
-
-    i=0;
-
-    // lecture de l'eeprom BLOCK_1 et mise dans le tableau arry
-    for(i=0; i<size ;i++)
-    {
-        DdiScaleEepromI2cRead(BLOCK_1_EEPROM, i, &array1[i], 1);
-        sleep_ms(5);
-    }
-    i=0;
-}
-
-void exempleEEPROMnotinWhileLOOP(void)
-{
-    memset(array, 42, sizeof(array)); // init array at 0
-
-    // ecriture en eeprom
-    for(i=0; i<size ;i++)
-    {
-        array[i] = myEepromWrite(i,234);
-        //sleep_ms(10);
-    }
-    i=0;
-
-    // lecture de l'eeprom et mise dans le tableau arry
-    for(i=0; i<size ;i++)
-    {
-        array[i] = myEepromRead(i);
-        //sleep_ms(10);
-    }
-    i=0;
-}
-
-void exempleEEPROMDriverFrancknotinWhileLOOP(void)
-{  
-    memset(array, 42, sizeof(array)); // init array at 0
-    memset(array1, 43, sizeof(array1)); // init array at 0
-
-    // ecriture en eeprom BLOCK_0
-    for(i=0; i<size ;i++)
-    {
-        array[i] = I2CSendFranck(EEPROM_BLOCK_0, i, 1, 10+i);
-        //array[i] = I2CSendOneByteFranck(EEPROM_BLOCK_0, i, 10+i);
-        //sleep_ms(5);
-    }
-
-    i=0;
-
-    // ecriture en eeprom BLOCK_1
-    for(i=0; i<size ;i++)
-    {
-        array1[i] = I2CSendFranck(EEPROM_BLOCK_1, i, 1, 101+i);
-        //array1[i] = I2CSendOneByteFranck(EEPROM_BLOCK_1, i, 20+i);
-        //sleep_ms(5);
-    }
-
-    i=0;
-    // lecture de l'eeprom BLOCK_0 et mise dans le tableau arry
-    for(i=0; i<size ;i++)
-    {
-        array1[i] = i;
-        array[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_0, i);
-        sleep_ms(5);
-    }
-
-    i=0;
-
-    // lecture de l'eeprom BLOCK_1 et mise dans le tableau arry
-    for(i=0; i<size ;i++)
-    {
-        array1[i] = I2CReceiveOneByteFranck(EEPROM_BLOCK_1, i);
-        sleep_ms(5);
-    }
-    i=0;
+        array2[i] = size-i-1;
+    //Write in eeprom BLOCK_2 several data in a row BUGF don't work properly
+	// Test write in a row and read one by one to see if write in a row works.
+    DdiScaleI2cWrite(EEPROM_BLOCK_2, 0, array2, size);
+	
+	memset(array2, 43, size);
+   
+    //DdiScaleI2cRead(EEPROM_BLOCK_2, 0, array2, size);
+	for(i=0; i<size ;i++)
+		array2[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_2,i);
 }
 
 void exempleIO2ChenilladWithDriverFranck(void)
@@ -225,17 +159,11 @@ void configInterrupt(void)
     //Configure Pin PL2 for input
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);						
     GPIOPinTypeGPIOInput(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //Optionnel ==
-    //GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_DIR_MODE_IN);
-    //GPIOPadConfigSet(GPIO_PORTL_BASE,GPIO_PIN_2,GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
-    //GPIOIntDisable(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //==
+    GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
+
 
     //Configure Pin PL2 for IOExpender interruption.
-
     GPIOIntRegister(GPIO_PORTL_BASE, GPIOL_Handler);					// Fonctionne avec une fonction quelquonque qui n'est pas défini dans le .s ! ?
-
     GPIOIntTypeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_FALLING_EDGE);
     GPIOIntEnable(GPIO_PORTL_BASE, GPIO_PIN_2);
     //IntPrioritySet ( INT_GPIOL, 0xe0); 								// Not Needed
@@ -247,7 +175,6 @@ void GPIOL_Handler()
 {
     GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
     valueLed = checkButtonPressInt();   //lecture ne marche pas
-    //SysCtlIntClear(INT_GPIOL);
 }
 
 void setGreenLed(bool v){
@@ -285,8 +212,6 @@ void exempleButtonPressInt(void)
     currentLed ^= 0x40;
     setLed(currentLed);
     sleep_ms(250);
-
-
 }
 
 void exampleButtonPress()
@@ -379,8 +304,6 @@ void exampleChenillard(int type)
         //break;
     }
     }
-
-
 }
 
 void initUART0(void)
@@ -435,7 +358,6 @@ void testVariableParameter(uint8_t num_of_args, ...)
     uint8_t arrayLocal[255];
     ASSERT(num_of_args < 255);
     memset(arrayLocal, 0, sizeof(arrayLocal));
-
 
     va_start(vargs,num_of_args);
 

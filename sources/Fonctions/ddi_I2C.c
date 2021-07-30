@@ -1,7 +1,10 @@
 #include "ddi_I2C.h"
 
+const uint32_t WAIT = 0x7000;
+
 void init_i2c(void)
 {	
+    uint32_t speed=0;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOG);	// Enable PORTG
 	SysCtlPeripheralReset(SYSCTL_PERIPH_I2C1);      //Reset I2C1
 	GPIOPinConfigure(GPIO_PG0_I2C1SCL); 			// Configure Alternate function for pin PG0
@@ -11,9 +14,11 @@ void init_i2c(void)
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C1);  	// Enable I2C1
 	while(!SysCtlPeripheralReady(SYSCTL_PERIPH_I2C1)); // utile ?
 	
-	I2CMasterInitExpClk(I2C1_BASE, HR_Sys_Clock_Freq, false);
+	speed = HR_Sys_Clock_Freq;
+	//speed = SysCtlClockGet();
+	I2CMasterInitExpClk(I2C1_BASE, speed, false);
 	
-	I2CMasterTimeoutSet(I2C1_BASE, 0x7d); //Franck: en ajoutant ca, plus besoin de pause mais je ne sais pas comment ca fonctionne.
+	//I2CMasterTimeoutSet(I2C1_BASE, 0x7d); //Franck: en ajoutant ca, plus besoin de pause mais je ne sais pas comment ca fonctionne.
 
 	//clear I2C FIFOs
     HWREG(I2C1_BASE + I2C_O_FIFOCTL) = 80008000;	
@@ -30,14 +35,14 @@ uint8_t i2c_Write(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg)
     I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_START);
     timeOutI2C = 0;
     //Wait for I2C reveive commande and pass to busy
-    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    /*while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
     if(timeOutI2C>=2000)
-        return I2C_ERROR_TIMEOUT_1;
+        return I2C_ERROR_TIMEOUT_1;*/
 
     timeOutI2C = 0;
     //while I2C is busy
-    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <WAIT)timeOutI2C++;
+    if(timeOutI2C>=WAIT)
         return I2C_ERROR_TIMEOUT_2;
 
     // Check for errors.
@@ -48,13 +53,13 @@ uint8_t i2c_Write(uint8_t slave_addr, uint16_t  valToSend, uint8_t reg)
     I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
 
     timeOutI2C = 0;
-    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    /*while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
     if(timeOutI2C>=2000)
-        return I2C_ERROR_TIMEOUT_3;
+        return I2C_ERROR_TIMEOUT_3;*/
 
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <WAIT)timeOutI2C++;
+    if(timeOutI2C>=WAIT)
         return I2C_ERROR_TIMEOUT_4;
 
     // Check for errors.
@@ -77,13 +82,13 @@ uint8_t i2c_Read(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
     I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_SEND_START);
 
     timeOutI2C = 0;
-    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
+    /*while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
     if(timeOutI2C>=2000)
-        return FALSE;
+        return FALSE;*/
 
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <WAIT)timeOutI2C++;
+    if(timeOutI2C>=WAIT)
         return FALSE;
 
     // Check for errors.
@@ -91,15 +96,12 @@ uint8_t i2c_Read(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
         erreurTransmission = TRUE;
 
     I2CMasterSlaveAddrSet(I2C1_BASE, slave_addr, true);
-    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_START);
-    timeOutI2C = 0;
-    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
-        return FALSE;
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_SINGLE_RECEIVE);
+
 
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <WAIT)timeOutI2C++;
+    if(timeOutI2C>=WAIT)
         return FALSE;
 
     if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
@@ -109,19 +111,16 @@ uint8_t i2c_Read(uint32_t * PData, uint32_t slave_addr, uint8_t reg)
     }
 
     *PData = I2CMasterDataGet(I2C1_BASE);
-    timeOutI2C = 0;
-    while(!I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)return FALSE;
 
     timeOutI2C = 0;
-    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <2000)timeOutI2C++;
-    if(timeOutI2C>=2000)
+    while(I2CMasterBusy(I2C1_BASE) && timeOutI2C <WAIT)timeOutI2C++;
+    if(timeOutI2C>=WAIT)
         return FALSE;
 
     if( I2CMasterErr(I2C1_BASE) != I2C_MASTER_ERR_NONE)
         erreurTransmission = TRUE;
 
-    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
+    //I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
 
     return TRUE;
 }

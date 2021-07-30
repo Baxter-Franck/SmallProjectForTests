@@ -1,6 +1,7 @@
 #ifndef __MY_FUNCTIONS_H__
 #define __MY_FUNCTIONS_H__
 
+#include <ddi_scale_i2c.h>
 #include "ioExp.h"
 #include "ioExp2.h"
 #include "watchdog_ext.h"
@@ -14,7 +15,6 @@
 #include "stdint.h"
 #include "debug.h" // for ASSERT
 #include "ddi_I2C_franck.h"
-#include "ddi_scale_eeprom_i2c.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,
@@ -28,9 +28,7 @@ void exampleButtonPress(void);
 void exempleButtonPressInt(void);
 void exempleIO2Chenillard(uint8_t type, uint32_t delay);
 void exempleIO2ChenilladWithDriverFranck(void);
-void exempleEEPROMDriverFrancknotinWhileLOOP(void);
-void exempleDDI_EEPROM_INTERRUP_notinWhileLOOP(void);
-void exempleEEPROMnotinWhileLOOP(void);
+void NOT_IN_LOOP_rw_eeprom_INT(void);
 
 void setGreenLed(bool v);
 void setYellowLed(bool v);

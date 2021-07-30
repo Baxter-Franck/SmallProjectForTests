@@ -12,15 +12,15 @@
 * Module Description:
 * -------------------
 * This file is a driver interface for i2c.
-* In this case used for EEPROM of OIML Scale function merge in ICB
+* In this case used for I2C of OIML Scale function merge in ICB
 *    Author: Franck FURIC
 *    Date: 2021-07-29 15:24 French Time
 *    Revision: 1
-*    Source: ddi_scale_eeprom_i2c
+*    Source: ddi_scale_i2c
 */
 
-#ifndef __DDI_SCALE_EEPROM_I2C_H__
-#define __DDI_SCALE_EEPROM_I2C_H__
+#ifndef __DDI_SCALE_I2C_H__
+#define __DDI_SCALE_I2C_H__
 
 #include "defines_HR.h" // Only for HR_Sys_Clock_Freq
 #include <stdbool.h>
@@ -37,33 +37,20 @@
 #include "interrupt.h"
 
 // Alias for Periph and gpio for eeprom Merge Scale OIML
-#define SCALE_EEPROM_PERIPH_I2C         SYSCTL_PERIPH_I2C1
-#define SCALE_EEPROM_PERIPH_GPIO        SYSCTL_PERIPH_GPIOG
-#define SCALE_EEPROM_I2C_MASTER         I2C1_BASE
+#define SCALE_I2C_PERIPH_I2C         SYSCTL_PERIPH_I2C1
+#define SCALE_I2C_PERIPH_GPIO        SYSCTL_PERIPH_GPIOG
+#define SCALE_I2C_MASTER         I2C1_BASE
 
-#define SCALE_EEPROM_GPIO_ALT_I2C1_SCL  GPIO_PG0_I2C1SCL
-#define SCALE_EEPROM_GPIO_ALT_I2C1_SDA  GPIO_PG1_I2C1SDA
+#define SCALE_I2C_GPIO_ALT_I2C1_SCL  GPIO_PG0_I2C1SCL
+#define SCALE_I2C_GPIO_ALT_I2C1_SDA  GPIO_PG1_I2C1SDA
 
-#define SCALE_EEPROM_GPIO_PORT          GPIO_PORTG_BASE
-#define SCALE_EEPROM_PIN_SCL            GPIO_PIN_0
-#define SCALE_EEPROM_PIN_SDA            GPIO_PIN_1
+#define SCALE_I2C_GPIO_PORT          GPIO_PORTG_BASE
+#define SCALE_I2C_PIN_SCL            GPIO_PIN_0
+#define SCALE_I2C_PIN_SDA            GPIO_PIN_1
 
-#define SCALE_EEPROM_INT                INT_I2C1
+#define SCALE_I2C_INT                INT_I2C1
 
-// Address for 24LC16B
-#define BLOCK_0_EEPROM      0x50
-#define BLOCK_1_EEPROM      0x51
-
-#define DDI_EEPROM_MAXRETRY  0x7000
-
-//Interrupt priority ==> move in other file
-#define INTERRUPT_1ST_PRIORITY    0x0 //ADS1241 Loadbeam data interrupt
-#define INTERRUPT_2ND_PRIORITY    0x1 //EEPROM
-#define INTERRUPT_3RD_PRIORITY    0x2
-#define INTERRUPT_4TH_PRIORITY    0x3
-#define INTERRUPT_5TH_PRIORITY    0x4
-#define INTERRUPT_6TH_PRIORITY    0x5
-#define INTERRUPT_LST_PRIORITY    0x6
+#define DDI_I2C_MAXRETRY  0x7000
 
 // The states in the interrupt handler state machine.
 typedef enum{
@@ -77,12 +64,14 @@ typedef enum{
     STATE_READ_NEXT,
     STATE_READ_FINAL,
     STATE_READ_WAIT
-}STATE_INT_EEPROM;
+}STATE_INT_I2C;
 
-void DdiScaleEepromI2cInit(void);
-void DdiScaleEepromI2cIntHandler(void);
-uint8_t DdiScaleEepromI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
-uint8_t DdiScaleEepromI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
+void DdiScaleI2cInit(void);
+void DdiScaleI2cIntHandler(void);
+uint8_t DdiScaleI2cWrite1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t ucData);
+uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
+uint8_t DdiScaleI2cRead1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister);
+uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
 //BOOLEAN DdiEepI2cWriteVerify(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset,UNSIGNED32 ulCount);
 
 /* // save
@@ -93,4 +82,4 @@ extern void DdiEepI2cWrite(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 
 extern BOOLEAN DdiEepI2cWriteVerify(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset,UNSIGNED32 ulCount);
 */
 
-#endif // __DDI_SCALE_EEPROM_I2C_H__
+#endif // __DDI_SCALE_I2C_H__
