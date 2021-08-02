@@ -1,3 +1,4 @@
+#include <ExEeprom.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -11,7 +12,6 @@
 #include "ioExp2.h"
 #include "watchdog_ext.h"
 #include "myFunctions.h"
-#include "myEeprom.h"
 
 // Définition global of µC speed
 uint32_t HR_Sys_Clock_Freq;

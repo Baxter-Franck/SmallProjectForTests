@@ -1,7 +1,7 @@
 #ifndef __IOEXP_H__
 #define __IOEXP_H__
 
-#include "ddi_I2C.h"
+#include "ddi_scale_i2c.h"
 #include "string.h"
 #include "myFunctions.h"
 
@@ -22,6 +22,5 @@ typedef struct {
 } IOExpender_t;
 
 void configIO1(void);
-void ReadWrite_i2cEepromOutOfLoop(void);
 
 #endif // __IOEXP_H__

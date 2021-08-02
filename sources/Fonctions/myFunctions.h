@@ -2,19 +2,18 @@
 #define __MY_FUNCTIONS_H__
 
 #include <ddi_scale_i2c.h>
+#include <ExEeprom.h>
 #include "ioExp.h"
 #include "ioExp2.h"
 #include "watchdog_ext.h"
 #include "interrupt.h"
 #include "hw_ints.h"
-#include "myEeprom.h"
 #include <string.h> // for memset
 #include "uart.h"
 #include "uartstdio.h"
 #include "stdlib.h"
 #include "stdint.h"
 #include "debug.h" // for ASSERT
-#include "ddi_I2C_franck.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,

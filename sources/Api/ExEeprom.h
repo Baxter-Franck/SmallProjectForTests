@@ -1,7 +1,7 @@
 #ifndef __MYEEPROM_H__
 #define __MYEEPROM_H__
 
-#include "ddi_I2C.h"
+#include "ddi_scale_i2c.h"
 
 // Address for EEPROM 24LC16B
 // 0 1 0 1 | 0 B2 B1 B0 
@@ -16,7 +16,7 @@
 #define ADDR_EEPROM_BLOCK_7 0x57
 
 void configEEPREOM(void);
-uint8_t myEepromWrite(uint8_t address, uint8_t data);
-uint8_t myEepromRead(uint8_t address);
+uint8_t ExEepromWrite(uint8_t block, uint8_t address, uint8_t data);
+uint8_t ExEepromRead(uint8_t block, uint8_t address);
 
 #endif // __MYEEPROM_H__

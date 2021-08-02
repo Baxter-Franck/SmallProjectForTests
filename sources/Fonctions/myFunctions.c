@@ -7,7 +7,7 @@ extern uint8_t value;
 uint8_t valueLed;
 uint16_t i;
 uint32_t rxByte;
-const uint16_t size = 200;
+const uint16_t size = 16;
 uint8_t array[size];
 uint8_t array1[size];
 uint8_t array2[size];
@@ -29,10 +29,10 @@ void NOT_IN_LOOP_rw_eeprom_INT(void)
     i=0;
     // lecture de l'eeprom BLOCK_0 et BLOCK_1 et mise dans le tableau array
     for(i=0; i<size ;i++)
-		array[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_0,i);
+		array[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_0,i);
 
 	for(i=0; i<size ;i++)
-		array1[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_1,i);
+		array1[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_1,i);
 
     i=0;
 
@@ -42,37 +42,13 @@ void NOT_IN_LOOP_rw_eeprom_INT(void)
         array2[i] = size-i-1;
     //Write in eeprom BLOCK_2 several data in a row BUGF don't work properly
 	// Test write in a row and read one by one to see if write in a row works.
-    DdiScaleI2cWrite(EEPROM_BLOCK_2, 0, array2, size);
+    DdiScaleI2cWrite(ADDR_EEPROM_BLOCK_2, 0, array2, size);
 	
 	memset(array2, 43, size);
    
     //DdiScaleI2cRead(EEPROM_BLOCK_2, 0, array2, size);
 	for(i=0; i<size ;i++)
-		array2[i] = DdiScaleI2cRead1Byte(EEPROM_BLOCK_2,i);
-}
-
-void exempleIO2ChenilladWithDriverFranck(void)
-{
-    for(i=200;i>50;i-=20){
-        tca9535.Output.ports.P0.all ^= 0xFF;
-        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-        sleep_ms(i);
-    }
-    for(i=50;i>=1;i--){
-        tca9535.Output.ports.P0.all ^= 0xFF;
-        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-        sleep_ms(i);
-    }
-    for(i=1;i<=50;i++){
-        tca9535.Output.ports.P0.all ^= 0xFF;
-        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-        sleep_ms(i);
-    }
-    for(i=50;i<=200;i+=20){
-        tca9535.Output.ports.P0.all ^= 0xFF;
-        value = I2CSendFranck(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, 1, tca9535.Output.ports.P0.all);
-        sleep_ms(i);
-    }
+		array2[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_2,i);
 }
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
@@ -136,22 +112,17 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
 uint8_t checkButtonPressInt(void)
 {
     uint8_t ret = 0xFF;
-
-    if(i2c_Read(&rxByte, IOEXP_ADDR, PORT0_IN))
-    {
-        ret = (~rxByte & 0x70);
-    }
+    ret = DdiScaleI2cRead1Byte(IOEXP_ADDR, PORT0_IN);
+    ret = (~rxByte & 0x70);
     return ret;
 }
 
 BUTTON_TYPE checkButtonPress(void)
 {
-    BUTTON_TYPE ret = NO_BUTTON;
-    if(i2c_Read(&rxByte, IOEXP_ADDR, PORT0_IN))
-    {
-        ret = (BUTTON_TYPE)((~rxByte & 0x70) & 0xFF);
-    }
-    return ret;
+    uint8_t ret = 0x00;
+    ret = DdiScaleI2cRead1Byte(IOEXP_ADDR, PORT0_IN);
+    ret = ((~rxByte & 0x70) & 0xFF);
+    return (BUTTON_TYPE)ret;
 }
 
 void configInterrupt(void)
@@ -161,14 +132,12 @@ void configInterrupt(void)
     GPIOPinTypeGPIOInput(GPIO_PORTL_BASE, GPIO_PIN_2);
     GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
 
-
     //Configure Pin PL2 for IOExpender interruption.
     GPIOIntRegister(GPIO_PORTL_BASE, GPIOL_Handler);					// Fonctionne avec une fonction quelquonque qui n'est pas défini dans le .s ! ?
     GPIOIntTypeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_FALLING_EDGE);
     GPIOIntEnable(GPIO_PORTL_BASE, GPIO_PIN_2);
     //IntPrioritySet ( INT_GPIOL, 0xe0); 								// Not Needed
     IntEnable(INT_GPIOL);
-    //IntMasterEnable();                                                // Not needed
 }
 
 void GPIOL_Handler()
@@ -180,21 +149,21 @@ void GPIOL_Handler()
 void setGreenLed(bool v){
 
     value = (v)?0xBF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setRedLed(bool v){
     value = (v)?0xDF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setYellowLed(bool v){
     value = (v)?0xEF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setLed(uint8_t v){
-    i2c_Write(IOEXP_ADDR, v, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void exempleButtonPressInt(void)
@@ -275,7 +244,7 @@ void exampleChenillard(int type)
             }
             (cpt>=2)?cpt=0:cpt++;
 
-            i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+            DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
         }
         //break;
     }
@@ -299,7 +268,7 @@ void exampleChenillard(int type)
             }
             (cpt>=2)?cpt=0:cpt++;
 
-            i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+            DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
         }
         //break;
     }

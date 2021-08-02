@@ -9,7 +9,7 @@ PRIVATE uint8_t g_ucI2C_ERROR = 0;
 PRIVATE uint32_t ulStatusInt = 0;
 // The current state of the interrupt handler state machine.
 PRIVATE volatile STATE_INT_I2C g_StateEp = STATE_IDLE;
-PRIVATE uint32_t tmp=0;
+uint32_t tmp=0;
 
 /**************************************************************************
 DOES:    The I2C_Init function. Initializes the I2C1 for EEPROM
@@ -17,8 +17,6 @@ RETURNS: nothing
  **************************************************************************/
 void DdiScaleI2cInit(void)
 {
-    uint32_t speed = 0;
-
     // Turn on I2C1 and the GPIO port whose pins it will use.
     MAP_SysCtlPeripheralEnable(SCALE_I2C_PERIPH_GPIO);
     MAP_SysCtlPeripheralEnable(SCALE_I2C_PERIPH_I2C);
