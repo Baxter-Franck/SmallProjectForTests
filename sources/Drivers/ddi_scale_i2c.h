@@ -72,14 +72,6 @@ uint8_t DdiScaleI2cWrite1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t uc
 uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
 uint8_t DdiScaleI2cRead1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister);
 uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
-//BOOLEAN DdiEepI2cWriteVerify(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset,UNSIGNED32 ulCount);
-
-/* // save
-extern void DdiEepI2cInit(void);
-extern void DdiEepI2cIntHandler(void);
-extern void DdiEepI2cRead(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset, UNSIGNED32 ulCount);
-extern void DdiEepI2cWrite(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset, UNSIGNED32 ulCount);
-extern BOOLEAN DdiEepI2cWriteVerify(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset,UNSIGNED32 ulCount);
-*/
+BOOLEAN DdiScaleI2cWriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount);
 
 #endif // __DDI_SCALE_I2C_H__

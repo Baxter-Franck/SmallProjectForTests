@@ -6,7 +6,6 @@ PRIVATE uint32_t g_ulCount = 0;
 PRIVATE uint8_t g_ucSlaveAddress = 0;
 volatile PRIVATE uint32_t g_ulErr = 0;
 PRIVATE uint8_t g_ucI2C_ERROR = 0;
-PRIVATE uint32_t ulStatusInt = 0;
 // The current state of the interrupt handler state machine.
 PRIVATE volatile STATE_INT_I2C g_StateEp = STATE_IDLE;
 uint32_t tmp=0;
@@ -30,11 +29,15 @@ void DdiScaleI2cInit(void)
     GPIOPinTypeI2CSCL(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SCL);
     GPIOPinTypeI2C(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SDA);
 
+    //Use in SCB source works without.
+    //GPIOPadConfigSet(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SCL, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
+    //GPIOPadConfigSet(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SDA, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_OD);
+
     // Enable and Initialize Master module and Master Clock using 100kbps or 400kbps
     // based on FastSpeed flag (FastSpeed = 0 -> 100kbps; FastSpeed = 1 -> 400kbps)
     I2CMasterInitExpClk(SCALE_I2C_MASTER, HR_Sys_Clock_Freq, 0);
 
-    //IntPrioritySet(SCALE_EEPROM_INT , 0x1);
+    //IntPrioritySet(SCALE_I2C_INT , INTERRUPT_2ND_PRIORITY);
     IntRegister(SCALE_I2C_INT, DdiScaleI2cIntHandler);
 
     //Enable I2C master interrupt
@@ -63,6 +66,8 @@ I2C_MASTER_INT_NACK     0x00000010  // Addr/Data NACK Interrupt
 I2C_MASTER_INT_TIMEOUT  0x00000002  // Clock Timeout Interrupt
 I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
 */
+    PRIVATE uint32_t ulStatusInt = 0;
+
     while((ulStatusInt = I2CMasterIntStatusEx(SCALE_I2C_MASTER, true)) != 0)
     {
         I2CMasterIntClearEx(SCALE_I2C_MASTER,ulStatusInt);
@@ -317,26 +322,24 @@ uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData
 // Verify a location.
 //
 //*****************************************************************************
-/*PUBLIC BOOLEAN DdiEepI2cWriteVerify(UNSIGNED8 ucSlv_Addr, UNSIGNED8 *pucData, UNSIGNED32 ulOffset,UNSIGNED32 ulCount)
+BOOLEAN DdiScaleI2cWriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount)
 {
-    UNSIGNED8 i,ucData[4] = {0};
-    BOOLEAN result = TRUE;
-    if(ulCount > sizeof(UNSIGNED32))
+    uint8_t i,ucData[4] = {0};
+    if(ulCount > sizeof(uint32_t))
     {
-        result = FALSE;
+        return FALSE;
     }
     else
     {
         //Verify if the write through correctly
-        DdiEepI2cRead(ucSlv_Addr,(UNSIGNED8 *)&ucData,ulOffset,ulCount);
+        DdiScaleI2cRead(ucSlv_Addr, ucRegister, ucData, ulCount);
         for(i=0;i<ulCount;i++)
         {
             if(ucData[i] != pucData[i])
             {
-                result = FALSE;
-                break;
+                return FALSE;
             }
         }
     }
-    return result;
-}*/
+    return TRUE;
+}

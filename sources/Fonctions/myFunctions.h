@@ -1,8 +1,8 @@
 #ifndef __MY_FUNCTIONS_H__
 #define __MY_FUNCTIONS_H__
 
+#include <ApiEeprom.h>
 #include <ddi_scale_i2c.h>
-#include <ExEeprom.h>
 #include "ioExp.h"
 #include "ioExp2.h"
 #include "watchdog_ext.h"
