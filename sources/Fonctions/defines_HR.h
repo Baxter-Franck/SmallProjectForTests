@@ -148,7 +148,7 @@ typedef char                char8_t;
 
 
 /// \typedef Emulates a C++ string data type using a char pointer.
-typedef char*                                      STRING_T;
+//typedef char*                                      STRING_T;
 /// \def Emulates a public function in C by making the function automatic.
 #define PUBLIC
 /// \def Emulates an internal function in C by making the function automatic.

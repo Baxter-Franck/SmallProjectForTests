@@ -7,28 +7,63 @@ extern uint8_t value;
 uint8_t valueLed;
 uint16_t i;
 uint32_t rxByte;
-uint8_t array[256];
+const uint16_t size = 10;
+uint8_t array[size];
+uint8_t array1[size];
+uint8_t array2[size];
 
-void exempleEEPROMnotinWhileLOOP(void)
+void NOT_IN_LOOP_rw_eeprom_INT(void)
+{	
+    memset(array, 42, sizeof(array)); // init array at 0
+    memset(array1, 43, sizeof(array1)); // init array at 0
+    memset(array2, 44, sizeof(array2)); // init array at 0
+
+    i=0;
+    // ecriture en eeprom BLOCK_0 et BLOCK_1
+    for(i=0; i<size ;i++)
+        array[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_0, i, 10+i);
+
+    for(i=0; i<size ;i++)
+        array1[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_1, i, 20+i);
+
+    i=0;
+    // lecture de l'eeprom BLOCK_0 et BLOCK_1 et mise dans le tableau array
+    for(i=0; i<size ;i++)
+        array[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_0,i);
+
+    for(i=0; i<size ;i++)
+        array1[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_1,i);
+
+    i=0;
+
+    for(i=0; i<size ;i++)
+        array2[i] = 5;
+    //Write in eeprom BLOCK_2 several data in a row BUGF don't work properly
+    // Test write in a row and read one by one to see if write in a row works.
+    i =  DdiScaleI2cWrite(ADDR_EEPROM_BLOCK_2, 0, array2, size);
+    LOG("retour d'ecriture %d",i);
+
+    memset(array2, 43, size);
+
+
+    i=DdiScaleI2cRead(ADDR_EEPROM_BLOCK_2, 0, array2, size);
+    LOG("retour de lecture %d",i);
+}
+
+void NOT_IN_LOOP_clearEeprom(uint8_t value)
 {
-    memset(array, 0, sizeof(array)); // init array at 0
-
-    // ecriture en eeprom
-    for(i=0;i<=0xFF;i++)
+    int8_t i=0x50;
+    int16_t j=0;
+    uint32_t cpt=0;
+    for(i=ADDR_EEPROM; i<=ADDR_EEPROM_BLOCK_7 ;i++)
     {
-        myEepromWrite(i,10);
-        //sleep_ms(4);
+        for(j=0; j<256 ;j++)
+        {
+            ExEEPROM_Write(i, j, 1, &value);
+            cpt++;
+            LOG("Erase Block %x | address %d | value %d [%d]",i,j,value,cpt);
+        }
     }
-
-	i=0;
-	
-    // lecture de l'eeprom et mise dans le tableau arry
-    for(i=0;i<=0xFF;i++)
-    {
-        array[i] = myEepromRead(i);
-        sleep_ms(4);
-    }
-	i=0;
 }
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
@@ -92,22 +127,17 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
 uint8_t checkButtonPressInt(void)
 {
     uint8_t ret = 0xFF;
-
-    if(i2c_Read(&rxByte, IOEXP_ADDR, PORT0_IN))
-    {
-        ret = (~rxByte & 0x70);
-    }
+    ret = DdiScaleI2cRead1Byte(IOEXP_ADDR, PORT0_IN);
+    ret = (~rxByte & 0x70);
     return ret;
 }
 
 BUTTON_TYPE checkButtonPress(void)
 {
-    BUTTON_TYPE ret = NO_BUTTON;
-    if(i2c_Read(&rxByte, IOEXP_ADDR, PORT0_IN))
-    {
-        ret = (BUTTON_TYPE)((~rxByte & 0x70) & 0xFF);
-    }
-    return ret;
+    uint8_t ret = 0x00;
+    ret = DdiScaleI2cRead1Byte(IOEXP_ADDR, PORT0_IN);
+    ret = ((~rxByte & 0x70) & 0xFF);
+    return (BUTTON_TYPE)ret;
 }
 
 void configInterrupt(void)
@@ -115,49 +145,40 @@ void configInterrupt(void)
     //Configure Pin PL2 for input
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);						
     GPIOPinTypeGPIOInput(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //Optionnel ==
-    //GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_DIR_MODE_IN);
-    //GPIOPadConfigSet(GPIO_PORTL_BASE,GPIO_PIN_2,GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
-    //GPIOIntDisable(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
-    //==
+    GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
 
     //Configure Pin PL2 for IOExpender interruption.
-
     GPIOIntRegister(GPIO_PORTL_BASE, GPIOL_Handler);					// Fonctionne avec une fonction quelquonque qui n'est pas défini dans le .s ! ?
-
     GPIOIntTypeSet(GPIO_PORTL_BASE, GPIO_PIN_2, GPIO_FALLING_EDGE);
     GPIOIntEnable(GPIO_PORTL_BASE, GPIO_PIN_2);
     //IntPrioritySet ( INT_GPIOL, 0xe0); 								// Not Needed
     IntEnable(INT_GPIOL);
-    //IntMasterEnable();                                                // Not needed
 }
 
 void GPIOL_Handler()
 {
     GPIOIntClear(GPIO_PORTL_BASE, GPIO_PIN_2);
     valueLed = checkButtonPressInt();   //lecture ne marche pas
-    //SysCtlIntClear(INT_GPIOL);
 }
 
 void setGreenLed(bool v){
 
     value = (v)?0xBF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setRedLed(bool v){
     value = (v)?0xDF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setYellowLed(bool v){
     value = (v)?0xEF:0xFF;
-    i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void setLed(uint8_t v){
-    i2c_Write(IOEXP_ADDR, v, PORT1_OUT);
+    DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
 }
 
 void exempleButtonPressInt(void)
@@ -175,8 +196,6 @@ void exempleButtonPressInt(void)
     currentLed ^= 0x40;
     setLed(currentLed);
     sleep_ms(250);
-
-
 }
 
 void exampleButtonPress()
@@ -240,7 +259,7 @@ void exampleChenillard(int type)
             }
             (cpt>=2)?cpt=0:cpt++;
 
-            i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+            DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
         }
         //break;
     }
@@ -264,42 +283,11 @@ void exampleChenillard(int type)
             }
             (cpt>=2)?cpt=0:cpt++;
 
-            i2c_Write(IOEXP_ADDR, value, PORT1_OUT);
+            DdiScaleI2cWrite1Byte(IOEXP_ADDR, PORT1_OUT, value);
         }
         //break;
     }
     }
-
-
-}
-
-void initUART0()
-{
-
-    // Enable GPIO port A which is used for UART0 pins.
-    // change this to whichever GPIO port you are using.
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-    // Enable UART0 so that we can configure the clock.
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-    // Configure the pin muxing for UART0 functions on port A0 and A1.
-    // This step is not necessary if your part does not support pin muxing.
-    // change this to select the port/pin you are using.
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-
-    // Select the alternate (UART) function for these pins.
-    // change this to select the port/pin you are using.
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    // Initialize the UART for console I/O.
-	UARTConfigSetExpClk( UART0_BASE,
-		HR_Sys_Clock_Freq,
-		115200,
-		( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) );
-	
-	UARTEnable ( UART0_BASE );
 }
 
 void sleep_ms(uint32_t time)
@@ -316,5 +304,21 @@ void sleep_s(uint32_t time)
     // For each loop, 3 instructions. Period for each loop = 3* (1/freq osc), 1 CLK per instruction
     // Temporization = 300000*(3*1/80MHz) = 11 ms
     SysCtlDelay(time*80*1e6/3);
+}
+
+void testVariableParameter(uint8_t num_of_args, ...)
+{
+    va_list vargs;
+    int i=0;
+    uint8_t arrayLocal[255];
+    ASSERT(num_of_args < 255);
+    memset(arrayLocal, 0, sizeof(arrayLocal));
+
+    va_start(vargs,num_of_args);
+
+    for(i=0;i<num_of_args;i++)
+        arrayLocal[i] = va_arg(vargs,int);
+
+    va_end(vargs);
 }
 

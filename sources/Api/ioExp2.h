@@ -1,7 +1,7 @@
 #ifndef __IOEXP2_H__
 #define __IOEXP2_H__
 
-#include "ddi_I2C.h"
+#include "ddi_scale_i2c.h"
 
 #define IOEXP2_ADDR 0x77
 

@@ -1,7 +1,9 @@
 #ifndef __IOEXP_H__
 #define __IOEXP_H__
 
-#include "ddi_I2C.h"
+#include "ddi_scale_i2c.h"
+#include "string.h"
+#include "myFunctions.h"
 
 #define IOEXP_ADDR 0x24
 
