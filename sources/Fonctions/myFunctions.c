@@ -7,48 +7,63 @@ extern uint8_t value;
 uint8_t valueLed;
 uint16_t i;
 uint32_t rxByte;
-const uint16_t size = 16;
+const uint16_t size = 10;
 uint8_t array[size];
 uint8_t array1[size];
 uint8_t array2[size];
 
 void NOT_IN_LOOP_rw_eeprom_INT(void)
-{
+{	
     memset(array, 42, sizeof(array)); // init array at 0
     memset(array1, 43, sizeof(array1)); // init array at 0
     memset(array2, 44, sizeof(array2)); // init array at 0
 
-	i=0;
+    i=0;
     // ecriture en eeprom BLOCK_0 et BLOCK_1
     for(i=0; i<size ;i++)
-		 array[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_0, i, 10+i);
+        array[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_0, i, 10+i);
 
-	for(i=0; i<size ;i++)
-		 array1[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_1, i, 20+i);
+    for(i=0; i<size ;i++)
+        array1[i] = DdiScaleI2cWrite1Byte(ADDR_EEPROM_BLOCK_1, i, 20+i);
 
     i=0;
     // lecture de l'eeprom BLOCK_0 et BLOCK_1 et mise dans le tableau array
     for(i=0; i<size ;i++)
-		array[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_0,i);
+        array[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_0,i);
 
-	for(i=0; i<size ;i++)
-		array1[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_1,i);
+    for(i=0; i<size ;i++)
+        array1[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_1,i);
 
     i=0;
 
-	i = sizeof(array2);
-
     for(i=0; i<size ;i++)
-        array2[i] = size-i-1;
+        array2[i] = 5;
     //Write in eeprom BLOCK_2 several data in a row BUGF don't work properly
-	// Test write in a row and read one by one to see if write in a row works.
-    DdiScaleI2cWrite(ADDR_EEPROM_BLOCK_2, 0, array2, size);
-	
-	memset(array2, 43, size);
-   
-    //DdiScaleI2cRead(EEPROM_BLOCK_2, 0, array2, size);
-	for(i=0; i<size ;i++)
-		array2[i] = DdiScaleI2cRead1Byte(ADDR_EEPROM_BLOCK_2,i);
+    // Test write in a row and read one by one to see if write in a row works.
+    i =  DdiScaleI2cWrite(ADDR_EEPROM_BLOCK_2, 0, array2, size);
+    LOG("retour d'ecriture %d",i);
+
+    memset(array2, 43, size);
+
+
+    i=DdiScaleI2cRead(ADDR_EEPROM_BLOCK_2, 0, array2, size);
+    LOG("retour de lecture %d",i);
+}
+
+void NOT_IN_LOOP_clearEeprom(uint8_t value)
+{
+    int8_t i=0x50;
+    int16_t j=0;
+    uint32_t cpt=0;
+    for(i=ADDR_EEPROM; i<=ADDR_EEPROM_BLOCK_7 ;i++)
+    {
+        for(j=0; j<256 ;j++)
+        {
+            ExEEPROM_Write(i, j, 1, &value);
+            cpt++;
+            LOG("Erase Block %x | address %d | value %d [%d]",i,j,value,cpt);
+        }
+    }
 }
 
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
@@ -275,35 +290,6 @@ void exampleChenillard(int type)
     }
 }
 
-void initUART0(void)
-{
-
-    // Enable GPIO port A which is used for UART0 pins.
-    // change this to whichever GPIO port you are using.
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-    // Enable UART0 so that we can configure the clock.
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-    // Configure the pin muxing for UART0 functions on port A0 and A1.
-    // This step is not necessary if your part does not support pin muxing.
-    // change this to select the port/pin you are using.
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-
-    // Select the alternate (UART) function for these pins.
-    // change this to select the port/pin you are using.
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    // Initialize the UART for console I/O.
-    UARTConfigSetExpClk( UART0_BASE,
-                         HR_Sys_Clock_Freq,
-                         115200,
-                         ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) );
-
-    UARTEnable ( UART0_BASE );
-}
-
 void sleep_ms(uint32_t time)
 {
     // SysCtlDelay(n) performs n loop.
@@ -335,3 +321,4 @@ void testVariableParameter(uint8_t num_of_args, ...)
 
     va_end(vargs);
 }
+

@@ -1,19 +1,17 @@
 #ifndef __MY_FUNCTIONS_H__
 #define __MY_FUNCTIONS_H__
 
-#include <ApiEeprom.h>
 #include <ddi_scale_i2c.h>
+#include <ExEeprom.h>
 #include "ioExp.h"
 #include "ioExp2.h"
 #include "watchdog_ext.h"
 #include "interrupt.h"
 #include "hw_ints.h"
 #include <string.h> // for memset
-#include "uart.h"
-#include "uartstdio.h"
 #include "stdlib.h"
 #include "stdint.h"
-#include "debug.h" // for ASSERT
+#include "utility.h"
 
 typedef enum{
     NO_BUTTON = 	0x00,
@@ -28,6 +26,7 @@ void exempleButtonPressInt(void);
 void exempleIO2Chenillard(uint8_t type, uint32_t delay);
 void exempleIO2ChenilladWithDriverFranck(void);
 void NOT_IN_LOOP_rw_eeprom_INT(void);
+void NOT_IN_LOOP_clearEeprom(uint8_t value);
 
 void setGreenLed(bool v);
 void setYellowLed(bool v);
@@ -36,8 +35,6 @@ void setLed(uint8_t v);
 BUTTON_TYPE checkButtonPress(void);
 uint8_t checkButtonPressInt(void);
 void configInterrupt(void);
-void initUART0(void); //=> l'écriture ne fonctionne pas pour le moment
-
 
 void sleep_ms(uint32_t time);
 void sleep_s(uint32_t time);

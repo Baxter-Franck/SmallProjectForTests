@@ -360,9 +360,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>PART_TM4C1294KCPDT UART_PRINTF_ENABLED</Define>
+              <Define>PART_TM4C1294KCPDT DEBUG_ON_OFF DEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>.\lib\driverlib;.\lib\inc;.\lib;.\sources;.\sources\fonctions</IncludePath>
+              <IncludePath>.\lib\driverlib;.\lib\inc;.\lib;.\sources;.\sources\fonctions;.\sources\Api;.\sources\Drivers</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -421,44 +421,54 @@
           <GroupName>Fonctions</GroupName>
           <Files>
             <File>
-              <FileName>ddi_I2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\sources\fonctions\ddi_I2C.c</FilePath>
-            </File>
-            <File>
-              <FileName>ioExp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\sources\fonctions\ioExp.c</FilePath>
-            </File>
-            <File>
-              <FileName>ioExp2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\sources\fonctions\ioExp2.c</FilePath>
-            </File>
-            <File>
               <FileName>myFunctions.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\sources\fonctions\myFunctions.c</FilePath>
             </File>
             <File>
-              <FileName>watchdog_ext.c</FileName>
+              <FileName>utility.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\fonctions\watchdog_ext.c</FilePath>
+              <FilePath>.\sources\Fonctions\utility.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Api</GroupName>
+          <Files>
+            <File>
+              <FileName>ioExp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Api\ioExp.c</FilePath>
             </File>
             <File>
-              <FileName>myEeprom.c</FileName>
+              <FileName>ioExp2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\Fonctions\myEeprom.c</FilePath>
+              <FilePath>.\sources\Api\ioExp2.c</FilePath>
             </File>
             <File>
-              <FileName>ddi_I2C_franck.c</FileName>
+              <FileName>ExEeprom.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\Fonctions\ddi_I2C_franck.c</FilePath>
+              <FilePath>.\sources\Api\ExEeprom.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers</GroupName>
+          <Files>
             <File>
               <FileName>ddi_scale_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\sources\Fonctions\ddi_scale_i2c.c</FilePath>
+              <FilePath>.\sources\Drivers\ddi_scale_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>watchdog_ext.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Drivers\watchdog_ext.c</FilePath>
+            </File>
+            <File>
+              <FileName>ddi_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Drivers\ddi_uart.c</FilePath>
             </File>
           </Files>
         </Group>

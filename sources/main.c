@@ -1,13 +1,8 @@
-#include <ApiEeprom.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdint.h>
+
+#include <ExEeprom.h>
 #include "sysctl.h"
-#include <uart.h>
-#include <uartstdio.h>
-#include "debug.h" // for ASSERT
 #include "hw_memmap.h"
+#include "utility.h"
 #include "ioExp.h"
 #include "ioExp2.h"
 #include "watchdog_ext.h"
@@ -29,7 +24,9 @@ void TestDriverI2CInterrupt(void)
 	// Enable µC Interrupts
 	IntMasterEnable();
 		
-	NOT_IN_LOOP_rw_eeprom_INT();
+	//EEPROM TEST
+	//NOT_IN_LOOP_rw_eeprom_INT();
+	//NOT_IN_LOOP_clearEeprom(0);
 
 	tca9535.Config.all = 0x0000;
     tca9535.Output.all = 0x0003;
@@ -40,7 +37,11 @@ void TestDriverI2CInterrupt(void)
     {
 		tca9535.Output.ports.P0.all ^= 0xFF;
         DdiScaleI2cWrite(IOEXP2_ADDR, TCA9535_OUTPUT_REG0, &tca9535.Output.ports.P0.all,1);
-        sleep_ms(50);
+		if(!tca9535.Output.ports.P0.bit.B0)
+			LOG("Led ON");
+		else
+			LOG("Led OFF");
+        sleep_ms(1000);
     }
 }
 
@@ -48,7 +49,12 @@ int main(void)
 {
     HR_Sys_Clock_Freq = SysCtlClockFreqSet( SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_XTAL_25MHZ | SYSCTL_CFG_VCO_480, 80000000 );
 
+    Ddi_uart_Init();
 
+	CLEAR_LOG; // => super usefull
+    LOG( " *****Main Start *****");
+
+    
     //TestDiverICB();
 	//TestDriverI2CFranck();
 	TestDriverI2CInterrupt();

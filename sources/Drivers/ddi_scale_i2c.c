@@ -8,10 +8,9 @@ volatile PRIVATE uint32_t g_ulErr = 0;
 PRIVATE uint8_t g_ucI2C_ERROR = 0;
 // The current state of the interrupt handler state machine.
 PRIVATE volatile STATE_INT_I2C g_StateEp = STATE_IDLE;
-uint32_t tmp=0;
 
 /**************************************************************************
-DOES:    The I2C_Init function. Initializes the I2C1 for EEPROM
+DOES:    The I2C_Init function. Initializes the I2C1
 RETURNS: nothing
  **************************************************************************/
 void DdiScaleI2cInit(void)
@@ -28,10 +27,6 @@ void DdiScaleI2cInit(void)
 
     GPIOPinTypeI2CSCL(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SCL);
     GPIOPinTypeI2C(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SDA);
-
-    //Use in SCB source works without.
-    //GPIOPadConfigSet(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SCL, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
-    //GPIOPadConfigSet(SCALE_I2C_GPIO_PORT, SCALE_I2C_PIN_SDA, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_OD);
 
     // Enable and Initialize Master module and Master Clock using 100kbps or 400kbps
     // based on FastSpeed flag (FastSpeed = 0 -> 100kbps; FastSpeed = 1 -> 400kbps)
@@ -75,7 +70,6 @@ I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
         if(ulStatusInt!=0 && ulStatusInt!=I2C_MASTER_INT_DATA)
         {
             //Other interrupt request what to do?
-			tmp = ulStatusInt;
             continue;
         }
 
@@ -123,7 +117,7 @@ I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
             case STATE_WAIT_ACK:
             {
                 // See if there was an error on the previously issued read.
-                if( (tmp=I2CMasterErr(SCALE_I2C_MASTER)) == I2C_MASTER_ERR_NONE)
+                if( I2CMasterErr(SCALE_I2C_MASTER) == I2C_MASTER_ERR_NONE)
                 {
                     // Read the byte received.
                     I2CMasterDataGet(SCALE_I2C_MASTER);
