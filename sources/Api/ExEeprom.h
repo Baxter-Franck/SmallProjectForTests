@@ -17,16 +17,18 @@
 #define ADDR_EEPROM_BLOCK_6 0x56
 #define ADDR_EEPROM_BLOCK_7 0x57
 
+
 void ExEEPROM_Init(void);
 void ExEEPROM_Write(uint8_t block, uint8_t address, uint8_t length, void* pointer);
 void ExEEPROM_WriteCritic(uint8_t block, uint8_t address, uint8_t length, void* pointer);
 uint8_t ExEEPROM_Read(uint8_t block, uint8_t address, uint8_t length, void* pointer);
+uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void* pointer)   ;
+PRIVATE void ExEEPROMRecover(uint8_t block, uint8_t address, uint8_t length, void *write_pointer, void *read_pointer);
 
-void I2CRead(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length,void *pointer);
-void I2CWrite(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length,void *pointer);
-void I2CWriteCriticalData(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length,void *pointer);
+
+/*void I2CWriteCriticalData(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length,void *pointer);
 UNSIGNED8 I2CReadCriticalData(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length, void *pointer);
 UNSIGNED8 I2CReadCriticalDataDiag(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length, void *pointer);
 void I2CWriteCriticalDataDiag(UNSIGNED8 EE_Bank1,UNSIGNED8 ucSub_Addr1,UNSIGNED8 length,void *pointer);
-
+*/
 #endif // __MYEEPROM_H__

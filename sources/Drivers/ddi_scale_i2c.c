@@ -330,9 +330,7 @@ BOOLEAN DdiScaleI2cWriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *
         for(i=0;i<ulCount;i++)
         {
             if(ucData[i] != pucData[i])
-            {
                 return FALSE;
-            }
         }
     }
     return TRUE;

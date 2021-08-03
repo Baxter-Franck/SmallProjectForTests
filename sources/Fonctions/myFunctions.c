@@ -66,6 +66,19 @@ void NOT_IN_LOOP_clearEeprom(uint8_t value)
     }
 }
 
+void NIL_testExEepromRecover(void)
+{
+    uint8_t value=10;
+    uint8_t add=10;
+    ExEEPROM_Write(0, add, 1, &value);
+    ExEEPROM_Write(1, add, 1, &value);
+    value = 51; // simulation erreur 3 block non identique.
+    ExEEPROM_Write(2, add, 1, &value);
+
+    ExEEPROM_ReadCritic(0, add, 1, &value);
+    LOG("Value = %d",value);
+}
+
 void exempleIO2Chenillard(uint8_t type, uint32_t delay)
 {
     uint8_t i=0;

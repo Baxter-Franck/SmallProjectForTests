@@ -27,6 +27,7 @@ void TestDriverI2CInterrupt(void)
 	//EEPROM TEST
 	//NOT_IN_LOOP_rw_eeprom_INT();
 	//NOT_IN_LOOP_clearEeprom(0);
+	//NIL_testExEepromRecover();
 
 	tca9535.Config.all = 0x0000;
     tca9535.Output.all = 0x0003;
@@ -52,9 +53,8 @@ int main(void)
     Ddi_uart_Init();
 
 	CLEAR_LOG; // => super usefull
-    LOG( " *****Main Start *****");
+    LOG(" *****Main Start *****");
 
-    
     //TestDiverICB();
 	//TestDriverI2CFranck();
 	TestDriverI2CInterrupt();

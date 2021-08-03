@@ -27,6 +27,7 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay);
 void exempleIO2ChenilladWithDriverFranck(void);
 void NOT_IN_LOOP_rw_eeprom_INT(void);
 void NOT_IN_LOOP_clearEeprom(uint8_t value);
+void NIL_testExEepromRecover(void);
 
 void setGreenLed(bool v);
 void setYellowLed(bool v);
