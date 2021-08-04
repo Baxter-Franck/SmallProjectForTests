@@ -3,7 +3,12 @@
 
 #include "ddi_scale_i2c.h"
 
-#define IOEXP2_ADDR 0x77
+#define IOEXP_DEMO_BOARD
+#ifdef IOEXP_DEMO_BOARD
+#define IOEXP2_ADDR 0x77                    //IO2 on demo board !! no correct address on Accella
+#else
+#define IOEXP2_ADDR 0x26                    //IO2 on real board/bed Accella
+#endif
 
 // Doc IOExpender
 #define TCA9535_INPUT_REG0      0x00        // Input status register
@@ -48,9 +53,10 @@ typedef struct{
     union TCA9535 Config;
 }TCA9535_t;
 
-extern TCA9535_t tca9535;
+extern TCA9535_t IOExp2;
 
-void configIO2(void);
+void configIOExp2(void);
+uint8_t ioExp2Write(uint8_t address, uint16_t data);
 void updateIO2(void);
 
 
