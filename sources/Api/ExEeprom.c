@@ -15,6 +15,9 @@
 
 #include <ExEeprom.h>
 
+uint8_t  UC_I2C_ERROR;
+
+
 /**
  * @brief   Initialisation of EEPROM I2C
  */
@@ -40,12 +43,12 @@ void ExEEPROM_Write(uint8_t block, uint8_t address, uint8_t length, void* pointe
 
     DdiScaleI2cWrite(ucSlaveAddr, address, pointer, length);
 
-    if(DdiScaleI2cWriteVerify(ucSlaveAddr, address, pointer, length) == FALSE )
+    if(ExEEPROM_WriteVerify(ucSlaveAddr, address, pointer, length) == FALSE )
     {
         //Retry once
         DdiScaleI2cWrite(ucSlaveAddr, address, pointer, length);
         //Verify again
-        if(DdiScaleI2cWriteVerify(ucSlaveAddr, address, pointer, length) == FALSE)
+        if(ExEEPROM_WriteVerify(ucSlaveAddr, address, pointer, length) == FALSE)
         {
             //NV_ERROR = 1;
             //ApiDiag_Set((ddidiag_code_T)(DDIDIAG_EEPROM_WRITE_ERR));
@@ -75,7 +78,7 @@ void ExEEPROM_WriteCritic(uint8_t block, uint8_t address, uint8_t length, void* 
  * @param        block: Block of EEPROM
  * @param        address: address in block
  * @param        length: size of data to write in eeprom <= 16
- * @param        pointer: point of data
+ * @param[out]   pointer: point of data
  * @retval       0: => OK
  * @retval       1: => NOK
  * @brief        This function read in EEPROM.
@@ -94,7 +97,7 @@ uint8_t ExEEPROM_Read(uint8_t block, uint8_t address, uint8_t length, void* poin
  * @param block of reading eeprom
  * @param address of reading
  * @param length size of data to write in eeprom <= 16
- * @param pointer Value contain data
+ * @param[out] pointer Value contain data
  * @return 2 if good reading
  * @details This function read the same data place in 3 block [0,1,2] at the same address these 3 value must be the same
  * value or trig an error.
@@ -129,7 +132,7 @@ uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void
             //check to see if the recovery worked
             if(temp[0] !=temp[1])
             {
-                //UC_I2C_ERROR |= I2C_EE_RECOVERY;
+                UC_I2C_ERROR |= I2C_EE_RECOVERY;
                 return 0;
             }
         }
@@ -142,7 +145,7 @@ uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void
             //cehck to see if the recovery worked
             if(temp[0] !=temp[1])
             {
-                //UC_I2C_ERROR |= I2C_EE_RECOVERY;
+                UC_I2C_ERROR |= I2C_EE_RECOVERY;
                 return 0;
             }
         }
@@ -150,16 +153,13 @@ uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void
         // IDB: NPD0184A, I:472; If 3 Corrupt E^2 data detected, system couldn't recover because
         // EEPROM was no longer allowed to be accessed.  Now comparison to GENERAL_EEPROM_ERRORS
         // is made, of which I2C_ALL_3_ADDRESSES_BAD is a member.
-
         //nobody matches.....
         else
         {
-            //UC_I2C_ERROR |= I2C_ALL_3_ADDRESSES_BAD;
+            UC_I2C_ERROR |= I2C_ALL_3_ADDRESSES_BAD;
             return 0;
         }
-
     }
-
     else if(temp[0] == temp[1])
     {
         //temp0 = temp2.. so temp2 must be bad
@@ -190,7 +190,43 @@ uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void
     return 2;
 }
 
+/**
+ * @param ucSlv_Addr Address of I2C peripheric
+ * @param ucRegister Address od register to be Read
+ * @param pucData    Pointer of data to store
+ * @param ulCount    Size of data to read
+ * @retval true => OK
+ * @retval false => NOK
+ * @brief This function verify if content of pointer pucData is the same in eeprom
+ */
+BOOLEAN ExEEPROM_WriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount)
+{
+    uint8_t i,ucData[4] = {0};
+    if(ulCount > sizeof(uint32_t))
+    {
+        return FALSE;
+    }
+    else
+    {
+        //Verify if the write through correctly
+        DdiScaleI2cRead(ucSlv_Addr, ucRegister, ucData, ulCount);
+        for(i=0;i<ulCount;i++)
+        {
+            if(ucData[i] != pucData[i])
+                return FALSE;
+        }
+    }
+    return TRUE;
+}
 
+/**
+ * @param block of reading eeprom
+ * @param address of reading
+ * @param length size of data to write in eeprom <= 16
+ * @param write_pointer value to be writ on read_pointer
+ * @param[out] read_pointer recover data
+ * @brief This function write one address X and read it in read_pointer
+ */
 void ExEEPROMRecover(uint8_t block, uint8_t address, uint8_t length, void *write_pointer, void *read_pointer)
 {
     //try to re-write the corrupt address

@@ -35,6 +35,7 @@
 #include "i2c.h"
 #include "rom_map.h"
 #include "interrupt.h"
+#include "ExEeprom.h"
 
 // Alias for Periph and gpio for eeprom Merge Scale OIML
 #define SCALE_I2C_PERIPH_I2C         SYSCTL_PERIPH_I2C1
@@ -50,7 +51,15 @@
 
 #define SCALE_I2C_INT                INT_I2C1
 
-#define DDI_I2C_MAXRETRY  0x7000
+#define DDI_I2C_MAXRETRY         0x7000
+
+#define I2C_ALL_3_ADDRESSES_BAD  0x80
+#define I2C_EE_RECOVERY          0x40
+#define I2C_EEP_RD_ERROR         0x20
+#define I2C_EEP_WR_ERROR         0x10
+#define I2C_SCL_STUCK            0x02
+#define I2C_NO_ACK               0x01
+#define I2C_NO_ERROR             0x00
 
 // The states in the interrupt handler state machine.
 typedef enum{
@@ -72,6 +81,5 @@ uint8_t DdiScaleI2cWrite1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t uc
 uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
 uint8_t DdiScaleI2cRead1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister);
 uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
-BOOLEAN DdiScaleI2cWriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount);
 
 #endif // __DDI_SCALE_I2C_H__

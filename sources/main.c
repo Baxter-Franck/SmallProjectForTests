@@ -55,7 +55,5 @@ int main(void)
 	CLEAR_LOG; // => super usefull
     LOG(" *****Main Start *****");
 
-    //TestDiverICB();
-	//TestDriverI2CFranck();
 	TestDriverI2CInterrupt();
 }

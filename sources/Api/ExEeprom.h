@@ -17,12 +17,14 @@
 #define ADDR_EEPROM_BLOCK_6 0x56
 #define ADDR_EEPROM_BLOCK_7 0x57
 
+extern uint8_t UC_I2C_ERROR;
 
 void ExEEPROM_Init(void);
 void ExEEPROM_Write(uint8_t block, uint8_t address, uint8_t length, void* pointer);
 void ExEEPROM_WriteCritic(uint8_t block, uint8_t address, uint8_t length, void* pointer);
 uint8_t ExEEPROM_Read(uint8_t block, uint8_t address, uint8_t length, void* pointer);
 uint8_t ExEEPROM_ReadCritic(uint8_t block, uint8_t address, uint8_t length, void* pointer)   ;
+BOOLEAN ExEEPROM_WriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount);
 PRIVATE void ExEEPROMRecover(uint8_t block, uint8_t address, uint8_t length, void *write_pointer, void *read_pointer);
 
 

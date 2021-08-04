@@ -258,6 +258,8 @@ uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucDat
     if(g_ulErr >= DDI_I2C_MAXRETRY)
     {
         g_ucI2C_ERROR = 1;
+        UC_I2C_ERROR |= I2C_EEP_WR_ERROR;
+        //ApiDiag_Set((ddidiag_code_T)(DDIDIAG_EEPROM_WRITE_ERR));//Not clearing as there is some error!!!
     }
     return g_ucI2C_ERROR;
 }
@@ -274,6 +276,16 @@ uint8_t DdiScaleI2cRead1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister)
         ucValue = 0;
     return ucValue;
 }
+
+/**
+ * @param ucSlv_Addr Address of I2C peripheric
+ * @param ucRegister Address od register to be Read
+ * @param pucData    Pointer of data to store
+ * @param ulCount    Size of data to read
+ * @retval 0 => OK
+ * @retval 1 => NOK
+ * @brief This function allow reading I2C
+ */
 uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount)
 {
     g_ucI2C_ERROR = 0;
@@ -305,33 +317,10 @@ uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData
     }
 
     if(g_ulErr >= DDI_I2C_MAXRETRY)
-    {
-        g_ucI2C_ERROR = 1;
-    }
-    return g_ucI2C_ERROR;
-}
-
-//*****************************************************************************
-//
-// Verify a location.
-//
-//*****************************************************************************
-BOOLEAN DdiScaleI2cWriteVerify(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData,uint32_t ulCount)
-{
-    uint8_t i,ucData[4] = {0};
-    if(ulCount > sizeof(uint32_t))
-    {
-        return FALSE;
-    }
-    else
-    {
-        //Verify if the write through correctly
-        DdiScaleI2cRead(ucSlv_Addr, ucRegister, ucData, ulCount);
-        for(i=0;i<ulCount;i++)
         {
-            if(ucData[i] != pucData[i])
-                return FALSE;
+            g_ucI2C_ERROR = 1;
+            UC_I2C_ERROR |= I2C_EEP_RD_ERROR;
+            //ApiDiag_Set((ddidiag_code_T)(DDIDIAG_EEPROM_READ_ERR));//Not clearing as there is some error!!!
         }
-    }
-    return TRUE;
+    return g_ucI2C_ERROR;
 }
