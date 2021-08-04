@@ -510,6 +510,11 @@
               <FileType>1</FileType>
               <FilePath>.\lib\driverlib\uartstdio.c</FilePath>
             </File>
+            <File>
+              <FileName>systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\driverlib\systick.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
