@@ -5,9 +5,9 @@
 
 #define IOEXP_DEMO_BOARD
 #ifdef IOEXP_DEMO_BOARD
-#define IOEXP2_ADDR 0x77                    //IO2 on demo board !! no correct address on Accella
+#define ADDR_IO_EXP_2 0x77                    //IO2 on demo board !! no correct address on Accella
 #else
-#define IOEXP2_ADDR 0x26                    //IO2 on real board/bed Accella
+#define ADDR_IO_EXP_2 0x26                    //IO2 on real board/bed Accella
 #endif
 
 // Doc IOExpender
@@ -20,43 +20,34 @@
 #define TCA9535_CONFIG_REG0     0x06        // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
 #define TCA9535_CONFIG_REG1     0x07        // Configuration register. BIT = '1' sets port to input BIT = '0' sets port to output
 
-struct TCA9535_sBit{
-    uint8_t B0:1;
-    uint8_t B1:1;
-    uint8_t B2:1;
-    uint8_t B3:1;
-    uint8_t B4:1;
-    uint8_t B5:1;
-    uint8_t B6:1;
-    uint8_t B7:1;
+
+struct TCA9535_Bits
+{
+    uint8_t out_LD_BEAM1_SW4 : 1,
+            out_LD_BEAM2_SW4 : 1,
+            out_LD_BEAM3_SW4 : 1,
+            out_LD_BEAM4_SW4: 1,
+            out_LED_DIAG_YEL : 1,
+            out_LED_DIAG_GRN : 1,
+            out_LED_DIAG_RED : 1,
+            in_INT_ACCELERO : 1;
+    uint8_t out_NC_NORMALLY_OPENED : 1,
+            out_NC_NORMALLY_CLOSED : 1,
+            out_PC_NORMALLY_OPENED : 1,
+            out_PC_NORMALLY_CLOSED : 1,
+            unused : 4;
 };
 
-union TCA9535_uPort{
-    uint8_t all;
-    struct TCA9535_sBit bit;
-};
-
-struct TCA9535_sPorts{
-    union TCA9535_uPort P0;
-    union TCA9535_uPort P1;
-};
-
-union TCA9535{
+typedef union
+{
     uint16_t all;
-    struct TCA9535_sPorts ports;
-};
+    struct TCA9535_Bits bit;
+}IOExp2_Data_t;
 
-typedef struct{
-    union TCA9535 Input;
-    union TCA9535 Output;
-    union TCA9535 PolarityInversion;
-    union TCA9535 Config;
-}TCA9535_t;
-
-extern TCA9535_t IOExp2;
+extern IOExp2_Data_t IOExp2;
 
 void configIOExp2(void);
-uint8_t ioExp2Write(uint8_t address, uint16_t data);
+uint8_t ioExp2Write(uint8_t address, IOExp2_Data_t data);
 void updateIO2(void);
 
 

@@ -224,6 +224,14 @@ uint8_t DdiScaleI2cWrite1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t uc
     return DdiScaleI2cWrite(ucSlv_Addr, ucRegister, &ucData, 1);
 }
 
+uint8_t DdiScaleI2cWrite2Bytes(uint8_t ucSlv_Addr, uint8_t ucRegister, uint16_t ucData)
+{
+    uint8_t convData[2];
+    convData[0] = (ucData & 0x00FF) ;
+    convData[1] = (ucData >> 8);
+    return DdiScaleI2cWrite(ucSlv_Addr, ucRegister, convData, sizeof(convData));
+}
+
 uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount)
 {
     g_ucI2C_ERROR = 0;

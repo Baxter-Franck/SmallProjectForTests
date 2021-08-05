@@ -30,23 +30,13 @@ void TestDriverI2CInterrupt(void)
     //NOT_IN_LOOP_clearEeprom(0);
     //NIL_testExEepromRecover();
 
-    IOExp2.Config.all = 0x0000;
-    IOExp2.Output.all = 0xFF03;
-    ioExp2Write(TCA9535_CONFIG_REG0, IOExp2.Config.all);
-    ioExp2Write(TCA9535_OUTPUT_REG0, IOExp2.Output.all);
+    IOExp2.all = 0xFF03;
+	configIOExp2();
 
     while(1)
     {
-        IOExp2.Output.ports.P0.all ^= 0xFF;
-        ioExp2Write(TCA9535_OUTPUT_REG0, IOExp2.Output.all);
-        if(!IOExp2.Output.ports.P0.bit.B0)
-            LOG("Led ON  [0x%x]",IOExp2.Output.all);
-        else
-            LOG("Led OFF [0x%x]",IOExp2.Output.all);
-
+		exempleIO2Chenillard(1,25);
         LOG("sysTickCounter_1s       => %d",sysTickCounter_1s);
-        LOG("sysTickCounter_100ms    => %d",sysTickCounter_100ms);
-        sleep_ms(1000);
     }
 }
 

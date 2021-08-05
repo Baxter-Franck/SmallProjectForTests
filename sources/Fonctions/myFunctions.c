@@ -88,14 +88,14 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
         //montée
         for(i=0;i<8;i++)
         {
-            IOExp2.Output.all = 0x03; //all led off
+            IOExp2.all = 0x03; //all led off
 
             if(i==0)
-                IOExp2.Output.ports.P0.bit.B0 = 0;
+                IOExp2.bit.out_LD_BEAM1_SW4 = 0;
             else if(i==1)
-                IOExp2.Output.ports.P0.bit.B1 = 0;
+                IOExp2.bit.out_LD_BEAM2_SW4 = 0;
             else
-                IOExp2.Output.ports.P0.all ^= 1<<i;
+                IOExp2.all ^= 1<<i;
 
             updateIO2();
             sleep_ms(delay);
@@ -104,14 +104,14 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
         //descente
         for(i=7;i<=7;i--)
         {
-            IOExp2.Output.all = 0x03; //all led off
+            IOExp2.all = 0x03; //all led off
 
             if(i==0)
-                IOExp2.Output.ports.P0.bit.B0 = 0;
+                IOExp2.bit.out_LD_BEAM1_SW4 = 0;
             else if(i==1)
-                IOExp2.Output.ports.P0.bit.B1 = 0;
+                IOExp2.bit.out_LD_BEAM2_SW4 = 0;
             else
-                IOExp2.Output.ports.P0.all ^= 1<<i;
+                IOExp2.all ^= 1<<i;
 
             updateIO2();
             sleep_ms(delay);
@@ -121,14 +121,14 @@ void exempleIO2Chenillard(uint8_t type, uint32_t delay)
         //montée
         for(i=0;i<8;i++)
         {
-            IOExp2.Output.all = 0x03; //all led off
+            IOExp2.all = 0x03; //all led off
 
             if(i==0)
-                IOExp2.Output.ports.P0.bit.B0 = 0;
+                IOExp2.bit.out_LD_BEAM1_SW4 = 0;
             if(i==1)
-                IOExp2.Output.ports.P0.bit.B1 = 0;
+                IOExp2.bit.out_LD_BEAM2_SW4 = 0;
             else
-                IOExp2.Output.ports.P0.all ^= 1<<i;
+                IOExp2.all ^= 1<<i;
 
             updateIO2();
             sleep_ms(delay);

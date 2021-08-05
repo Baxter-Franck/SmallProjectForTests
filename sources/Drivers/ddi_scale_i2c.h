@@ -78,6 +78,7 @@ typedef enum{
 void DdiScaleI2cInit(void);
 void DdiScaleI2cIntHandler(void);
 uint8_t DdiScaleI2cWrite1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t ucData);
+uint8_t DdiScaleI2cWrite2Bytes(uint8_t ucSlv_Addr, uint8_t ucRegister, uint16_t ucData);
 uint8_t DdiScaleI2cWrite(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
 uint8_t DdiScaleI2cRead1Byte(uint8_t ucSlv_Addr, uint8_t ucRegister);
 uint8_t DdiScaleI2cRead(uint8_t ucSlv_Addr, uint8_t ucRegister, uint8_t *pucData, uint32_t ulCount);
