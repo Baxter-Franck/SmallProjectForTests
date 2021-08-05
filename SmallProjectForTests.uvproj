@@ -450,6 +450,11 @@
               <FileType>1</FileType>
               <FilePath>.\sources\Api\ExEeprom.c</FilePath>
             </File>
+            <File>
+              <FileName>Ticks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sources\Api\Ticks.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

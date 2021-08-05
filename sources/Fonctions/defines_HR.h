@@ -241,31 +241,20 @@ typedef char                char8_t;
 #define CLEARBIT(addr,x)   ((addr) &= ~BIT(x))
 #define BITSET(addr,x)     (((addr) & BIT(x)) == BIT(x))
 #define BITCLEARED(addr,x) (((addr) & BIT(x)) == 0)
-
-
-
 /********************************************************************************/
-
-
-
-
-
 
 
 /***************************************************
 *  Global variables Section
 ***************************************************/
 extern uint32_t HR_Sys_Clock_Freq;		//The actual configured system clock frequency in Hz via SysCtlClockFreqSet()
+extern volatile uint32_t sysTickCounter_1s;
 extern volatile uint32_t sysTickCounter_1ms;
 extern volatile uint32_t sysTickCounter_10ms;
 extern volatile uint32_t sysTickCounter_50ms;
 extern volatile uint32_t sysTickCounter_100ms;
-extern uint64_t sysTickCounter_1ms_tstamp;
-extern uint64_t sysTickCounter_1000ms_tstamp;
-extern uint64_t sysTickCounter_1ms_since_last_second_tstamp;
 
 extern unsigned short volatile gTimCnt;
-
 
 extern volatile uint64_t sysTickCounter_1ms_timer1;								/*1 miliseconds tick counter used for timer 1*/
 extern volatile uint64_t sysTickCounter_1ms_timer2;								/*1 miliseconds tick counter used for timer 2*/
