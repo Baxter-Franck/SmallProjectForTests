@@ -95,9 +95,7 @@ I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
                 // If there is one byte left, set the next state to the final write
                 // state.
                 if(g_ulCount == 1)
-                {
                     g_StateEp = STATE_WRITE_FINAL;
-                }
                 break;
             }
             // The state for the final write of a burst sequence.
@@ -162,7 +160,10 @@ I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
                 // Start the burst receive.
                 I2CMasterControl(SCALE_I2C_MASTER,I2C_MASTER_CMD_BURST_RECEIVE_START);
                 // The next state is the middle of the burst read.
-                g_StateEp = STATE_READ_NEXT; 
+                if(g_ulCount == 2) // If there are two characters left to be read, make the next state be the end of burst read state.
+                    g_StateEp = STATE_READ_FINAL;
+                else
+                    g_StateEp = STATE_READ_NEXT;
                 break;
             }
             // The state for the middle of a burst read.
@@ -177,9 +178,7 @@ I2C_MASTER_INT_DATA     0x00000001  // Data Interrupt
                 // If there are two characters left to be read, make the next
                 // state be the end of burst read state.
                 if(g_ulCount == 2)
-                {
                     g_StateEp = STATE_READ_FINAL;
-                }
                 break;
             }
             // The state for the end of a burst read.

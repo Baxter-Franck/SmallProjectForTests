@@ -28,7 +28,7 @@ void TestDriverI2CInterrupt(void)
     //EEPROM TEST
     //NOT_IN_LOOP_rw_eeprom_INT();
     //NOT_IN_LOOP_clearEeprom(0);
-    //NIL_testExEepromRecover();
+    NIL_testExEepromRecover();
 
     IOExp2.all = 0xFF03;
 	configIOExp2();
@@ -48,7 +48,7 @@ int main(void)
     CLEAR_LOG; // => super usefull
 
     initTicks();
-    IntMasterEnable();
+    //IntMasterEnable();
 
     LOG(" *****Main Start *****");
 

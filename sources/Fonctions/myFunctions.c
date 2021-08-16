@@ -38,8 +38,7 @@ void NOT_IN_LOOP_rw_eeprom_INT(void)
 
     for(i=0; i<size ;i++)
         array2[i] = 5;
-    //Write in eeprom BLOCK_2 several data in a row BUGF don't work properly
-    // Test write in a row and read one by one to see if write in a row works.
+    //don't write more than 16 bytes.
     i =  DdiScaleI2cWrite(ADDR_EEPROM_BLOCK_2, 0, array2, size);
     LOG("retour d'ecriture %d",i);
 
